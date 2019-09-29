@@ -10,12 +10,13 @@ const energy = require("./energy.json");
 const points = require("./points.json");
 const vlkys = require("./vlkys.json");
 const vlkylist = require("./vlkylist.json");
+const duellist = require("./duellist.json");
 const stars = require("./stars.json");
 
 module.exports.run = async(bot, message, args) =>{
     var id = message.author.id;
-    if(message.guild.members.get(id).roles.find(x => x.name == "GM") == null) return message.channel.send("需要**GM**權限");
-    if((!message.channel.name.includes("指令")) && (!message.channel.name.includes("賭場"))) return message.reply("使用指令請至<#336341341053255684>。");
+    //if(message.guild.members.get(id).roles.find(x => x.name == "GM") == null) return message.channel.send("需要**GM**權限");
+    if((!message.channel.name.includes("女武神系統測試")) && (!message.channel.name.includes("賭場"))) return message.reply("需要**GM**權限。");
     if(args[1]) 
     {
       var opid = args[1].slice(2,-1);
@@ -27,7 +28,8 @@ module.exports.run = async(bot, message, args) =>{
     if(opid == id) return message.channel.send("錯誤的對象。");
     if(!(vlkys[id].set1[0] && vlkys[id].set1[1])) return message.reply("己方未設置出戰女武神。")
     if(!(vlkys[opid].set1[0] && vlkys[opid].set1[1])) return message.reply("對方未設置出戰女武神。")
-    
+    if(!duellist[id]) duellist[id] = { now:0, win:0, lose:0, elo:1000}
+    if(duellist[id].now) return message.reply("尚有未結束之戰鬥。")
     var mp = 0;
     var embed = new Discord.RichEmbed();
   
@@ -53,7 +55,38 @@ module.exports.run = async(bot, message, args) =>{
     {
       var player = {};
       player.id = id;
-      player.name = vlkylist[type].name.slice(3)
+      //player.name = vlkylist[type].name.slice(3)
+      let emo = "";
+      switch(type)
+      {
+        case"A0": emo = "琪亞娜"
+        break;
+        case "A1": emo = "芽衣"
+        break;
+        case "A2": emo = "姬子"
+        break;
+        case "A3": emo = "德麗莎"
+        break;
+        case "A4": emo = "八重櫻"
+        break;
+        case "A5": emo = "卡蓮"
+        break;
+        case "A6": emo = "符華"
+        break;
+        case "A7": emo = "麗塔"
+        break;
+        case "A8": emo = "莉莉婭"
+        break;
+        case "A9": emo = "希兒"
+        break;
+        case "S0": emo = "空律"
+        break;
+        case "S1": emo = "布洛尼亞"
+        break;
+        case "S2": emo = "蘿莎莉婭"
+        break;
+      }
+      player.name = emo;
       player.position = position;
       if(position == "p1") player.aibo = "p2";
       else if(position == "p2") player.aibo = "p1";
@@ -72,9 +105,8 @@ module.exports.run = async(bot, message, args) =>{
       player.sp_up = 1;
       player.sp_gaining = 1;
       player.atk_up = 1;
-      player.hp_up = 1;
       player.def_up = 1;
-      player.cridmg_up = 1;
+      player.cridmg_up = 0; //爆傷增幅 (+)
       player.maxhp_up = 1;
       player.cri_up = 0;   // 爆率增幅 (%數)
       player.burst = 0;
@@ -105,11 +137,17 @@ module.exports.run = async(bot, message, args) =>{
       player.cridmg = 2;
       player.maxsp = 1000;
       
+      player.hp_up = function(value)
+      {
+        player.hp *= 1 + value;
+        return;
+      }
       player.initialize = function(aibo,obj1,obj2)        // 初始化能力值 best_match、角色被動
       {
         if(player.type == "A0" && aibo.type == "A1")
         {
-          player.hp_up += 0.08;
+          player.hp_up(0.08);
+          player.maxhp_up += 0.08;
           player.def_up += 0.08;
         }
         if(player.type == "A1" && aibo.type == "A0")
@@ -129,9 +167,7 @@ module.exports.run = async(bot, message, args) =>{
             if(aibo.type == "A6" && aibo.hp < aibo.maxhp/3) passive_atk_up += 0.2;
           break;
         }
-        player.hp = player.hp * player.hp_up;
-        player.maxhp = player.base_maxhp * player.hp_up;
-        player.hp_up = 1;
+        player.maxhp = player.base_maxhp * player.maxhp_up;
         player.atk = player.base_atk * (player.atk_up + passive_atk_up)
         player.def = player.base_def * player.def_up
         player.cri = player.base_cri + player.cri_up
@@ -147,8 +183,8 @@ module.exports.run = async(bot, message, args) =>{
       {
         for(var status of Object.keys(player.status))
         {
-          if(!status.last) continue;
-          if(status.last > 0) status.last -= 1
+          if(!player.status[status].last) continue;
+          if(player.status[status].last > 0) player.status[status].last -= 1
         }
         return;
       }
@@ -172,7 +208,11 @@ module.exports.run = async(bot, message, args) =>{
           if(atk_type == "normal") // 普通傷害
           {    
             dmg = player.atk * atk_rate;
-            if(rand <= player.cri*100) dmg *= player.cridmg; // 有爆
+            if(rand <= player.cri*100) 
+            {
+              dmg *= player.cridmg; // 有爆
+              atk_name += "爆擊"
+            }
             rand = Math.random()*0.2 + 0.8;
             dmg *= rand;
           }
@@ -197,14 +237,14 @@ module.exports.run = async(bot, message, args) =>{
               return;
             break;
               
-            case "A1":
+            case "A1":         
               if(player.burst)
               {
                 if(player.sp < 350) 
                 {
                   player.burst = 0;
-                  player.atk_up -= 0.2;
-                  player.cri_up -= 25;
+                  player.atk_up -= 0.5;
+                  player.cri_up -= 50;
                   record += dis_player(player) + " 的爆發狀態解除。" + "\n";
                 }
                 else player.sp -= 350;
@@ -261,12 +301,12 @@ module.exports.run = async(bot, message, args) =>{
               aibo.sp += 200;
             break;
             
-            case "A1":  //Mei
+            case "A1":  //Mei  建御雷
               if(player.burst == 0) 
               {  
                 player.burst = 1
-                player.atk_up += 0.2;
-                player.cri_up += 25;
+                player.atk_up += 0.5;
+                player.cri_up += 50;
                 record += dis_player(player) + " 開啟了爆發狀態。" + "\n";
               }
               else normal();
@@ -330,7 +370,7 @@ module.exports.run = async(bot, message, args) =>{
           if(atk_type == "normal") dmg -= player.def;
           if(dmg < 1) dmg = 1;
           player.hp -= dmg;
-          player.sp += dmg/player.maxhp * 1000;      //受傷回能
+          player.sp += dmg/player.maxhp * 1500;      //受傷回能
           return;
         }
         switch(player.type)
@@ -340,11 +380,22 @@ module.exports.run = async(bot, message, args) =>{
           break;
         }
         damage();
-        record += dis_player(source) + " 🗡 【"+ atk_name + "】 " + dis_player(player) + " ♥－" + Math.floor(dmg) + "\n";
+        let emoji = "🗡";
+        let emoji1 = "🔻";
+        if(!atk_name.includes("普攻")) emoji = "💠";
+        if(atk_name.includes("爆擊")) 
+        {
+          emoji = "💥";
+          if(atk_name == "普攻爆擊") atk_name = "爆擊";
+          else atk_name = atk_name.slice(0,-2);
+        }
+        if(atk_type == "fire") emoji1 = "🔥";
+        if(atk_type == "thunder") emoji1 = "⚡";
+        if(atk_type == "ice") emoji1 = "❄";
+        record += dis_player(source)  + emoji + "【"+ atk_name + "】" + player.name + emoji1 + Math.floor(dmg) + "\n";
         if(player.hp <= 0) return "dead";
         else return "hit";
       }
-      
       return player;
     }
   
@@ -369,11 +420,60 @@ module.exports.run = async(bot, message, args) =>{
     function embed_renew ()
     {
       embed = new Discord.RichEmbed();
+      function show_hp(player)
+      {
+        if(player.hp < 0) return 0;
+        else return player.hp
+      }
+      function show_sp(player)
+      {
+        if(player.sp > player.maxsp) return player.maxsp;
+        else return player.sp
+      }
+      function show_heart(player)
+      {
+        let num = Math.ceil((player.hp / player.maxhp)/0.2);
+        let str = "";
+        for(var j = 0 ; j < num ; j++) str += "◽";
+        for(var j = 0 ; j < 5 - num ; j++) str += "◾";
+        return str;
+      }
+      function show_star(player)
+      {
+        let num = Math.floor((player.sp / player.maxsp)/0.2);
+        let str = "";
+        for(var j = 0 ; j < num ; j++) str += "🍵";
+        if(str.length > 5) str = "🍵🍵🍵🍵🍵"
+        return str;
+      }
+      function show_status(player)
+      {
+        let emoji = 0;
+        for(var status of Object.keys(player.status))
+        {
+          if(!player.status[status].last) continue;
+          if(player.status[status].last > 0)
+          {
+            switch(status)
+            {
+              case "ignite":  emoji += "🔥";  break;
+              case "faint":  emoji += "✨";  break;
+              case "impair":  emoji += "⏬";  break;
+              case "weaken":  emoji += "😰";  break;
+              case "conductive":  emoji += "🌩";  break;
+              case "sakura":  if(player.status[status].last >= 3) emoji += "🌸";  break;
+              case "increase_atk": emoji += "⚔"; break;
+              case "increase_def": emoji += "🛡"; break;
+            }
+          }
+        }
+        return emoji;
+      }
       embed.setTitle("Lv."+p1.lv+" "+man.displayName+" V.S. "+"Lv."+op1.lv+" "+ opponent.displayName).setColor("#00c5a3");
-      embed.addField(dis_player(p1), Math.floor(p1.hp)+"/"+Math.floor(p1.maxhp)+"\n"+Math.floor(p1.sp)+"/"+Math.floor(op2.maxsp),true)
-           .addField(dis_player(p2), Math.floor(p2.hp)+"/"+Math.floor(p2.maxhp)+"\n"+Math.floor(p2.sp)+"/"+Math.floor(op2.maxsp),true)
-           .addField(dis_player(op1), Math.floor(op1.hp)+"/"+Math.floor(op1.maxhp)+"\n"+Math.floor(op1.sp)+"/"+Math.floor(op2.maxsp),true)
-           .addField(dis_player(op2), Math.floor(op2.hp)+"/"+Math.floor(op2.maxhp)+"\n"+Math.floor(op2.sp)+"/"+Math.floor(op2.maxsp),true)
+      embed.addField(dis_player(p1)+show_status(p1), Math.ceil(show_hp(p1))+"/"+Math.floor(p1.maxhp)+" "+ show_heart(p1) + "\n"+Math.floor(show_sp(p1))+"/"+Math.floor(op2.maxsp) +" "+ show_star(p1),true)
+           .addField(dis_player(p2+show_status(p2)), Math.ceil(show_hp(p2))+"/"+Math.floor(p2.maxhp)+" "+ show_heart(p2) +"\n"+Math.floor(show_sp(p2))+"/"+Math.floor(op2.maxsp)+" "+ show_star(p2),true)
+           .addField(dis_player(op1)+show_status(op1), Math.ceil(show_hp(op1))+"/"+Math.floor(op1.maxhp)+" "+ show_heart(op1) +"\n"+Math.floor(show_sp(op1))+"/"+Math.floor(op2.maxsp)+" "+ show_star(op1),true)
+           .addField(dis_player(op2)+show_status(op2), Math.ceil(show_hp(op2))+"/"+Math.floor(op2.maxhp)+" "+ show_heart(op2) +"\n"+Math.floor(show_sp(op2))+"/"+Math.floor(op2.maxsp)+" "+ show_star(op2),true)
       embed.setDescription(record)
       return embed;
     }
@@ -397,10 +497,10 @@ module.exports.run = async(bot, message, args) =>{
 
     function dis_player(obj)
     {
-      if(obj.position == "p1") return "♠" + obj.name;
-      if(obj.position == "p2") return "♣" + obj.name;
-      if(obj.position == "op1") return "♥" + obj.name;
-      if(obj.position == "op2") return "♦" + obj.name;
+      if(obj.position == "p1") return "🔹" + obj.name;
+      if(obj.position == "p2") return "🔹" + obj.name;
+      if(obj.position == "op1") return "🔸" + obj.name;
+      if(obj.position == "op2") return "🔸" + obj.name;
     }
 
     function sleep (time) {
@@ -450,7 +550,9 @@ module.exports.run = async(bot, message, args) =>{
   
     while(state == "fighting")   //正式開打
     {
-       if(turn >= 4) turn = 0
+       duellist[id].now = 1;
+       fs.writeFileSync("./duellist.json",JSON.stringify(duellist));
+       if(turn >= seq.length) turn = 0
        tp = seq[turn]
        if(tp.hp <= 0) 
        {
@@ -462,18 +564,13 @@ module.exports.run = async(bot, message, args) =>{
        if(tp.status.faint.last > 0)
        {
          tp.status.faint.last --
-         record += dis_player(tp.position) + " 遭到暈眩，暫停回合。\n"
+         record += dis_player(tp) + " 遭到暈眩，回合暫停。\n"
          turn ++;
          continue;
        }
        let target = find_target(tp);
        tp.hit(target, player_obj(tp.aibo), player_obj(target.aibo));
-       console.log(tp.aibo)
-       console.log(target.aibo);
-       console.log("-")
-       console.log(player_obj(tp.aibo).type);
-       console.log(player_obj(target.aibo).type);
-       tp.turn_end()
+       tp.turn_end();
        for(i = 0 ; i < seq.length ; i++ )  //死者取消行動
        {
          if(seq[i].hp <= 0)
@@ -482,27 +579,32 @@ module.exports.run = async(bot, message, args) =>{
            i--;
          }
        }
-       if(tp.status.ignite.last)  tp.on_hit(tp.status.ignite.dot, "fire", "點燃", tp.status.ignite.source)
+       if(seq.length == 0) state = "even";
+       if(!seq.find(x => x == op1) && !seq.find(x => x == op2)) state = "win";
+       if(!seq.find(x => x == p1) && !seq.find(x => x == p2)) state = "lose";
+      
+       if(tp.status.ignite.last && state == "fighting")  tp.on_hit(tp.status.ignite.dot, "fire", "點燃", tp.status.ignite.source)
       
        await sleep(time_wait);
        msg.edit(embed_renew());
-       if(!seq.find(x => x == op1) && !seq.find(x => x == op2)) state = "win";
-       if(!seq.find(x => x == p1) && !seq.find(x => x == p2)) state = "lose";
-       if(seq.length == 0) state = "even";
+       
        turn += 1
     }
+  
+    duellist[id].now = 0;
+    fs.writeFileSync("./duellist.json",JSON.stringify(duellist));
 
     if(state == "win")
     {
       await sleep(time_wait);
-      record += "🏆" + man.displayName + " 獲勝。";
+      record += "🏆 " + man.displayName + " 獲勝。";
       msg.edit(embed_renew());
       return;
     }
     else if(state == "lose")
     {
        await sleep(time_wait);
-       record += "🌶🐔" + man.displayName + " 被屌虐。"
+       record += "🌶🐔 " + man.displayName + " 被屌虐。"
        msg.edit(embed_renew());
       return
     }

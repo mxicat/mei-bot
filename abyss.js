@@ -370,7 +370,7 @@ module.exports.run = async(bot, message, args) =>{
           if(win)
           {
             await sleep(1000);
-            renew(array,"🏆" + man.displayName +" 獲勝");
+            renew(array,"🏆 " + man.displayName +" 獲勝");
             msg.edit(new_embed.setDescription(display(array)));
             
             lvup(id, rw);
@@ -387,7 +387,7 @@ module.exports.run = async(bot, message, args) =>{
           else if (lose)
           {
             await sleep(1000);
-             renew(array,"🌶🐔" + man.displayName +" 被屌虐");
+             renew(array,"🌶🐔 " + man.displayName +" 被屌虐");
             msg.edit(new_embed.setDescription(display(array)));
             
     

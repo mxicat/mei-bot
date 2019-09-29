@@ -90,7 +90,7 @@ module.exports.run = async(bot, message, args) =>{
        switch(args[1])
        {
          case "now":
-            if(message.guild.members.get(id).roles.find(x => x.name == "GM") == null) return message.channel.send("測試中，需要**GM**權限");
+            //if(message.guild.members.get(id).roles.find(x => x.name == "GM") == null) return message.channel.send("測試中，需要**GM**權限");
             lv = vlkys[id].status.lv;
             vk = vlkylist[vlkys[id].set1[0]];
             if(!vk) return message.reply("未設定出戰女武神。")
@@ -105,9 +105,10 @@ module.exports.run = async(bot, message, args) =>{
             break;
           
          case "set":
-             if(message.guild.members.get(id).roles.find(x => x.name == "GM") == null) return message.channel.send("測試中，需要**GM**權限");
+             //if(message.guild.members.get(id).roles.find(x => x.name == "GM") == null) return message.channel.send("測試中，需要**GM**權限");
              
              if(!(args[2] && args[3])) return message.reply("請輸入欲設置的女武神編號組。");
+             if(args[2] == args[3]) return message.reply("不可設置重複的女武神。")
              if(vlkylist[args[2]] && vlkylist[args[3]])
              {
                if((!Object.keys(vlkys[id].vlkys).includes(args[2])) || vlkys[id].rank[args[2]] == "None") return message.reply("含有未解鎖之女武神。");
@@ -120,8 +121,8 @@ module.exports.run = async(bot, message, args) =>{
              else return message.channel.send("含有未知的女武神編號。")
              break; 
            
-         case "reset":
-           if(message.guild.members.get(id).roles.find(x => x.name == "GM") == null) return message.channel.send("測試中，需要**GM**權限");
+         case "reset100":
+           //if(message.guild.members.get(id).roles.find(x => x.name == "GM") == null) return message.channel.send("測試中，需要**GM**權限");
            vlkys[id] = {vlkys : {"B0":1, "A0":1, "A1":1, "A2":1, "A3":1, "A4":1, "A5":1, "A6":1, "A7":1, "A8":1, "A9":1, "S0":1, "S1":1, "S2":1},
                         rank:{"B0":"SS", "A0":"SS", "A1":"SS", "A2":"SS", "A3":"SS", "A4":"SS", "A5":"SS", "A6":"SS", "A7":"SS", "A8":"SS", "A9":"SS", "S0":"SS", "S1":"SS", "S2":"SS"},
                         status: {"lv":100, "exp":0}, set1:[0,0], set2:[0,0], set3:[0,0], favor:{"B0":0}};
