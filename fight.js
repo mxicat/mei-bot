@@ -257,7 +257,7 @@ function sleep (time) {
   if(win)
   {
     await sleep(1000);
-    renew(array,"🏆" + man.displayName +" 獲勝");
+    renew(array,"🏆 " + man.displayName +" 獲勝");
     msg.edit(new_embed.setDescription(display(array)));
     
     /*var rew = p2lv/2;
@@ -284,7 +284,7 @@ function sleep (time) {
   else if (lose)
   {
     await sleep(1000);
-     renew(array,"🌶🐔" + man.displayName +" 被屌虐");
+     renew(array,"🌶🐔 " + man.displayName +" 被屌虐");
     msg.edit(new_embed.setDescription(display(array)));
    /* crystals[id].crystals += 10;
     lvup(id,15);
