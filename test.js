@@ -18,7 +18,7 @@ const coinlist = require("./coinlist.json");
 
 module.exports.run = async(bot, message, args) =>{
     var id = message.author.id;
-    //if(message.guild.members.get(id).roles.find(`name`,"GM") == null) return message.channel.send("需要**GM**權限");
+    if(message.guild.members.get(id).roles.find(`name`,"GM") == null) return message.channel.send("需要**GM**權限");
     let man = message.guild.members.get(id);
     let now = new Date();
     let month = now.getMonth();

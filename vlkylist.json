@@ -144,6 +144,18 @@
     "img":"https://i.imgur.com/GffpIrk.jpg"
   },
   
+  "bella" : 
+    {
+      "name": "BN-貝納勒斯",
+      "atk": 10.2,
+      "cri": 0.4,
+      "hp": 52.28,
+      "def": 1.56,
+      "agi": 1,
+      "srank" : "S",
+      "img":"https://i.imgur.com/3Q4aDpc.png"
+    },
+  
   "S1":
   {
      "name": "S1-布洛妮婭·扎伊切克",
@@ -167,5 +179,4 @@
      "srank" : "S",
     "img":"https://i.imgur.com/NCg1BdM.png"
   }
-  
 }

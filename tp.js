@@ -42,7 +42,7 @@ module.exports.run = async(bot, message, args) =>{
           embed = new Discord.RichEmbed()
           .setColor("#939650")
           .setTitle("艦團水晶獎勵")
-          .addField("戰場獎勵","戰場總分/150 (最低70000)")
+          .addField("戰場獎勵","戰場總分/100 (最低70000)")
           .addField("矩陣獎勵","探索值/10 (最低500)")
           .addField("入侵獎勵","入侵傷害前五名者每人 50 水晶")
           return message.channel.send(embed);
@@ -131,8 +131,8 @@ module.exports.run = async(bot, message, args) =>{
       {     
         case "bf":
            if(num < 70000) return message.reply("分數未達獎勵門檻，請再加油。");
-           if(num > 102400) return message.reply("你難道就是超越系統極限的神仙嗎");
-           let bfre = Math.floor(num/150);
+           if(num > 102400) return message.reply("這是什麼神仙分數？");
+           let bfre = Math.floor(num/100);
            tplist[now] = { enable: 1, reward: bfre , member:[] };
            tplist[now].member[0] = id;
            tplist["status"].now += 1;

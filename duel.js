@@ -17,6 +17,12 @@ module.exports.run = async(bot, message, args) =>{
     var id = message.author.id;
     //if(message.guild.members.get(id).roles.find(x => x.name == "GM") == null) return message.channel.send("需要**GM**權限");
     if((!message.channel.name.includes("女武神系統測試")) && (!message.channel.name.includes("賭場"))) return message.reply("需要**GM**權限。");
+    if(args[1] == "reset") 
+    {
+      duellist[id].now = 0;
+      fs.writeFileSync("./duellist.json",JSON.stringify(duellist));
+      return message.reply("戰鬥已重置");
+    }
     if(args[1]) 
     {
       var opid = args[1].slice(2,-1);
@@ -30,8 +36,19 @@ module.exports.run = async(bot, message, args) =>{
     if(!(vlkys[opid].set1[0] && vlkys[opid].set1[1])) return message.reply("對方未設置出戰女武神。")
     if(!duellist[id]) duellist[id] = { now:0, win:0, lose:0, elo:1000}
     if(duellist[id].now) return message.reply("尚有未結束之戰鬥。")
+  
+  //  變數表
     var mp = 0;
     var embed = new Discord.RichEmbed();
+    var rand = 0;
+    var tp = 0;    //this player
+    var array = []
+    var i = 0;
+    var seq = [];
+    var record = "";
+    var state = "fighting";
+    var turn = 0;
+    var time_wait = 1350;
   
     function explist(lv)  // required exp for lv up
     {
@@ -85,6 +102,8 @@ module.exports.run = async(bot, message, args) =>{
         break;
         case "S2": emo = "蘿莎莉婭"
         break;
+        case "bella": emo = "貝納勒斯"
+        break;
       }
       player.name = emo;
       player.position = position;
@@ -92,6 +111,7 @@ module.exports.run = async(bot, message, args) =>{
       else if(position == "p2") player.aibo = "p1";
       else if(position == "op1") player.aibo = "op2";
       else if(position == "op2") player.aibo = "op1";
+      player.aibo_obj = 0;
       
       player.lv = vlkys[id].status.lv;
       player.type = type;
@@ -100,23 +120,28 @@ module.exports.run = async(bot, message, args) =>{
       if(vlkys[id].rank[type] == "SS") mp = 1.1;
       if(vlkys[id].rank[type] == "SSS") mp = 1.2;
       if(vlkys[id].rank[type] == "EX") mp = 1.3
+      else mp = 1;
       
       player.sp = 0;
       player.sp_up = 1;
-      player.sp_gaining = 1;
+      player.sp_gaining_up = 0;
       player.atk_up = 1;
       player.def_up = 1;
       player.cridmg_up = 0; //爆傷增幅 (+)
       player.maxhp_up = 1;
       player.cri_up = 0;   // 爆率增幅 (%數)
       player.burst = 0;
+      player.heal_up = 1;
+      player.defense = 0;
       
       player.count = 0; //自身buff
       
       player.status = { "faint":{last:0}, "ignite":{last:0, dot:0, source:0}, 
                        "impair":{last:0, percent:0}, "weaken":{last:0, percent:0}, 
-                       "conductive":{last:0, percent:0}, "sakura":{time:0},
-                       "judah":{last:0, dot:0}, "increase_atk":{last:0, num:0}, "increase_def":{last:0, num:0}
+                       "conductive":{last:0, percent:0}, "sakura":{count:0},
+                       "increase_cri":{last:0, percent:0}, "increase_cridmg":{last:0, percent:0},
+                       "increase_atk":{last:0, percent:0}, "increase_def":{last:0, percent:0},
+                       "decrease_dmg":{last:0, percent:0}, "increase_sp_gaining":{last:0, percent:0}
                       }
         
       player.base_maxhp = vlkylist[type].hp * player.lv * mp            //基礎值
@@ -127,6 +152,7 @@ module.exports.run = async(bot, message, args) =>{
       player.base_agi = vlkylist[type].agi * player.lv * mp
       player.base_maxsp = 1000;
       player.base_cridmg = 2;
+      player.base_sp_gaining = 1;
       
       player.maxhp = vlkylist[type].hp * player.lv * mp               //浮動值-初始值
       player.hp = vlkylist[type].hp * player.lv * mp
@@ -136,24 +162,33 @@ module.exports.run = async(bot, message, args) =>{
       player.agi = vlkylist[type].agi * player.lv * mp
       player.cridmg = 2;
       player.maxsp = 1000;
+      player.sp_gaining = 1;
       
       player.hp_up = function(value)
       {
-        player.hp *= 1 + value;
+        player.hp += value * player.heal_up;
         return;
       }
+      
       player.initialize = function(aibo,obj1,obj2)        // 初始化能力值 best_match、角色被動
       {
-        if(player.type == "A0" && aibo.type == "A1")
+        if(player.type == "A0" && aibo.type == "A1")   //摯愛一生
         {
-          player.hp_up(0.08);
+          player.hp_up(player.hp + 0.08);
           player.maxhp_up += 0.08;
           player.def_up += 0.08;
         }
-        if(player.type == "A1" && aibo.type == "A0")
+        if(player.type == "A1" && aibo.type == "A0")  //摯愛一生
         {
           player.atk_up += 0.08;
         }
+        if(player.type == "A5" && aibo.type == "A4")  //櫻的飯糰
+        {
+          player.hp_up(player.hp + 0.1);
+          player.maxhp_up += 0.1;
+          player.heal_up += 0.2;
+        }
+        if(player.type == "A7") player.sp_gaining_up += 0.5; //雷影被動 
         
         return;
       }
@@ -163,15 +198,48 @@ module.exports.run = async(bot, message, args) =>{
         let passive_atk_up = 0;
         switch(player.type)  //角色特殊加成被動
         {
-          case "A2":
+          case "A0":
+            passive_atk_up += 0.02 * player.count   //時縫疾行
+          break;
+            
+          case "A2":   // 守護之決意
             if(aibo.type == "A6" && aibo.hp < aibo.maxhp/3) passive_atk_up += 0.2;
           break;
+            
+          case "A3":   // 誓約守護
+            if(aibo.type == "A7" && aibo.hp < aibo.maxhp*0.4 && (!player.status["increase_def"].last)) 
+            {
+              player.increase_def(5,50);
+              aibo.increase_def(5,50);
+              record += dis_player(player) + "【誓約守護】發動🛡" + "\n";
+            }
+          break;
         }
+        let n1 = 0;
+        let n2 = 0;
         player.maxhp = player.base_maxhp * player.maxhp_up;
-        player.atk = player.base_atk * (player.atk_up + passive_atk_up)
-        player.def = player.base_def * player.def_up
-        player.cri = player.base_cri + player.cri_up
-        player.cridmg = player.base_cridmg + player.cridmg_up;
+        if(player.status["increase_atk"].last) n1 = player.status["increase_atk"].percent/100
+        else n1 = 0
+        if(player.status["weaken"].last) n2 = player.status["weaken"].percent/100
+        else n2 = 0
+        player.atk = player.base_atk * (player.atk_up + passive_atk_up + n1 - n2)
+        
+        if(player.status["increase_def"].last) n1 = player.status["increase_def"].percent/100
+        else n1 = 0
+        player.def = player.base_def * (player.def_up + n1)
+        
+        if(player.status["increase_cri"].last) n1 = player.status["increase_cri"].percent
+        else n1 = 0
+        player.cri = player.base_cri + player.cri_up + n1
+        
+        if(player.status["increase_cridmg"].last) n1 = player.status["increase_cridmg"].percent/100
+        else n1 = 0
+        player.cridmg = player.base_cridmg + player.cridmg_up + n1
+        
+        if(player.status["increase_sp_gaining"].last) n1 = player.status["increase_sp_gaining"].percent/100
+        else n1 = 0
+        player.sp_gaining = player.base_sp_gaining + player.sp_gaining_up + n1
+
         player.maxsp = player.base_maxsp * player.sp_up 
         player.sp_up = 1;
         if(player.sp > player.maxsp) player.sp = player.maxsp;
@@ -191,7 +259,7 @@ module.exports.run = async(bot, message, args) =>{
       
       player.sp_gain = function(ratio)        //玩家gain sp
       {
-          let rand = Math.floor(Math.random()*51 + 100);
+          rand = Math.floor(Math.random()*51 + 100);
           player.sp += rand * player.sp_gaining * ratio;
           if(player.sp > player.maxsp) player.sp = player.maxsp;
           return rand * player.sp_gaining * ratio;
@@ -199,40 +267,14 @@ module.exports.run = async(bot, message, args) =>{
       
       player.hit = function(target,aibo,t2) //玩家行動
       {
-        
-        function attack(man, atk_rate, atk_name, atk_type)  //deal damage
-        {
-          if(man.hp <= 0) return "dead";
-          let dmg = 0;
-          let rand = Math.floor(Math.random()*10000 + 1); // 爆擊判定用
-          if(atk_type == "normal") // 普通傷害
-          {    
-            dmg = player.atk * atk_rate;
-            if(rand <= player.cri*100) 
-            {
-              dmg *= player.cridmg; // 有爆
-              atk_name += "爆擊"
-            }
-            rand = Math.random()*0.2 + 0.8;
-            dmg *= rand;
-          }
-          else  // 元素傷害
-          {
-            rand = Math.random()*0.2 + 0.8;
-            dmg = player.atk * atk_rate * rand;
-          }
-          return man.on_hit(dmg, atk_type, atk_name, player);
-        }
-        
-        function normal()
+        function normal()    // 普攻
         {
           switch(player.type)
           {
             case "A0":
-              attack(target, 1, "普攻", "normal");            
-              if(player.count > 5) player.count = 0;  //Kiana-被動疊物傷
+              player.attack(target, 1, "普攻", "normal");            
+              if(player.count > 5) player.count = 5;  //時縫疾行
               else player.count += 1;
-              player.atk_up += player.count *0.02;
               player.sp_gain(1);
               return;
             break;
@@ -245,40 +287,169 @@ module.exports.run = async(bot, message, args) =>{
                   player.burst = 0;
                   player.atk_up -= 0.5;
                   player.cri_up -= 50;
-                  record += dis_player(player) + " 的爆發狀態解除。" + "\n";
+                  record += dis_player(player) + " 的爆發狀態解除" + "\n";
                 }
                 else player.sp -= 350;
               }
-              attack(target, 1, "普攻", "normal");            
+              player.attack(target, 1, "普攻", "normal");            
               aibo.sp += player.sp_gain(1.3)           //武道分流
               return;
             break;
             
             case "A2":
-              attack(target, 1, "普攻", "normal");
+              player.attack(target, 1, "普攻", "normal");
               player.sp_gain(1);
               if(player.hp > player.maxhp*0.05)
               {
                 player.hp -= player.maxhp*0.05
-                attack(target, 0.3, "黃昏焰刃", "fire");
+                player.attack(target, 0.3, "黃昏焰刃", "fire");
               }
               return;
             break;
               
-            case "A6":
-              attack(target, 1, "普攻", "normal");
+            case "A3":
+              player.attack(target, 1, "普攻", "normal");
               player.sp_gain(1);
-              player.hp += player.maxhp * 0.03;
+              rand = Math.floor(Math.random()*3);
+              if(rand == 1)
+              {
+                player.attack(target, 1.2, "雷之矛", "thunder");
+              }
+              return;
+            break;
+              
+             case "A4":  // 櫻之雪
+              player.attack(target, 1, "普攻", "normal");
+              if(aibo.type == "A5")
+              {
+                rand = Math.floor(Math.random()*2)
+                if(rand) aibo.attack(target, 0.2, "猶大附加", "thunder");  // 猶大的祝福
+              }  
+              player.sp_gain(1);
+              if(target.status.sakura.count >= 3)
+              {
+                player.attack(target, 3, "刃返", "normal");
+                target.status.sakura.count = 0;
+              }
+              else
+              {
+                target.status.sakura.count ++
+              }
+              return;
+            break; 
+              
+            case "A6":  // 玄武歸心
+              player.attack(target, 1, "普攻", "normal");
+              player.sp_gain(1);
+              player.hp_up(player.maxhp * 0.03)
               if(aibo.type == "A2" && aibo.hp < aibo.maxhp * 0.3)
               {
-                player.hp += player.maxhp * 0.03;
+                player.hp_up(player.maxhp * 0.03)
               }
               if(player.hp > player.maxhp) player.hp = player.maxhp;
               return;
             break;
               
+            case "A7":  // 雷影
+              player.attack(target,0.9, "普攻", "thunder");
+              player.sp_gain(1);
+              return;
+            break;
+            
+            case "A8":
+              if(!player.defense)  
+              {
+                player.attack(target, 1, "普攻", "normal");
+                player.sp_gain(1);
+              }
+              else 
+              {
+                record += dis_player(player) + " 防禦姿態解除" + "\n"
+                player.attack(target, 1, "普攻", "normal");
+                player.sp_gain(1);
+              }  
+            break;
+            
+            case "A9":         // 暗影洪流  
+              if(player.burst)
+              {
+                if(player.sp < 350) 
+                {
+                  player.burst = 0;
+                  player.atk_up -= 0.3;
+                  player.cri_up -= 20;
+                  record += dis_player(player) + " 的暗影型態解除" + "\n";
+                }
+                else player.sp -= 350;
+              }
+              player.attack(target, 1, "普攻", "normal");            
+              player.sp_gain(1);
+              return;
+            break;
+            
+            case "S0":
+              if(aibo.hp <= 0 && !player.count)  
+              {
+                record += dis_player(player) + " 召喚了貝納勒斯🍭" + "\n"
+                player.count ++
+              }
+              else 
+              {
+                player.attack(target, 1, "普攻", "normal"); //亞空之矛
+                player.sp_gain(1);
+                let n = target.sp*0.15
+                target.sp -= n
+                player.hp_up(n*2);
+              }
+            break;
+              
+            case "S1":
+              if(!player.burst)
+              {
+                player.attack(target, 0.5, "普攻", "normal");  
+                player.attack(target, 0.5, "零式驅動", "ice");
+                rand = Math.floor(Math.random()*4)
+                if(rand == 1) target.weaken(3,20)
+              }
+              else
+              {
+                rand = Math.floor(Math.random()*4)
+                if(rand == 1) target.weaken(3,20)
+                player.attack(target, 0.9, "數據疾馳", "ice");
+                rand = Math.floor(Math.random()*4)
+                if(rand == 1) t2.weaken(3,20)
+                player.attack(t2, 0.9, "數據疾馳", "ice");
+              }           
+              player.sp_gain(1);
+              return;
+            break;
+              
+            case "S2":
+              player.attack(target, 0.5 + 0.08*(player.count), "普攻", "normal");
+              player.attack(t2, 0.5 + 0.08*(player.count), "普攻", "normal");     //呼啦啦旋風
+              player.sp_gain(1);
+              if(player.count > 5) player.count = 5;  //被動疊物傷
+              else player.count += 1;
+              if(aibo.type == "A8")  //連攜攻擊
+              {
+                rand = Math.floor(Math.random()*2)
+                if(rand)
+                {
+                  var r_string = aibo.attack(target, 0.5, "連攜攻擊", "normal")
+                  if(r_string == "not alive") aibo.attack(t2, 0.5, "連攜攻擊", "normal")
+                }
+                else
+                {
+                  var r_string = aibo.attack(t2, 0.5, "連攜攻擊", "normal")
+                  if(r_string == "not alive") aibo.attack(target, 0.5, "連攜攻擊", "normal")
+                }
+                aibo.sp += 60;
+                player.sp += 60;   //默契強化
+              }
+            break;
+          
             default:
-              attack(target, 1, "普攻", "normal");
+              player.attack(target, 1, "普攻", "normal");
               player.sp_gain(1);
               return;
             break;
@@ -286,18 +457,17 @@ module.exports.run = async(bot, message, args) =>{
           return;
         }
         
-        function ult()
+        function ult()       // 大招
         {
           if(player.type != "A1") player.sp -= 1000; //爆發狀態
           
           switch(player.type)
           {
             case "A0":  //kiana
-              attack(target, 2, "虛界衝擊", "normal");
-              attack(t2, 2, "虛界衝擊", "normal");
-              if(player.count > 5) player.count = 0;  //Kiana-被動疊物傷
+              player.attack(target, 2, "虛界衝擊", "normal");
+              player.attack(t2, 2, "虛界衝擊", "normal");
+              if(player.count > 5) player.count = 5;  //Kiana-被動疊物傷
               else player.count += 1;
-              player.atk_up += player.count *0.02;
               aibo.sp += 200;
             break;
             
@@ -307,49 +477,137 @@ module.exports.run = async(bot, message, args) =>{
                 player.burst = 1
                 player.atk_up += 0.5;
                 player.cri_up += 50;
-                record += dis_player(player) + " 開啟了爆發狀態。" + "\n";
+                record += dis_player(player) + " 開啟了爆發狀態🌟" + "\n";
               }
               else normal();
             break;
             
             case "A2":  //Himeko
               let p = target;
-              if(attack(p, 2, "天燼劫炎", "fire") != "dead")
+              if(player.attack(p, 2.3, "天燼劫炎", "fire") != "dead")
               {
-                let rand = Math.floor(Math.random()*2);
+                rand = Math.floor(Math.random()*2);
                 if(rand == 1) 
                 {
-                  p.status.ignite.dot = player.atk * 0.2;
-                  p.status.ignite.last = 3;
-                  p.status.ignite.source = player;
-                  record += dis_player(p) + " 受到點燃，持續3回合。\n"
+                  p.ignite(3,player.atk * 0.2,player)
+                  record += dis_player(p) + " 受到點燃，持續3回合\n"
                 }
               }
               
               p = t2;
-              if(attack(p, 2, "天燼劫炎", "fire") != "dead")
+              if(player.attack(p, 2.3, "天燼劫炎", "fire") != "dead")
               {
-                let rand = Math.floor(Math.random()*2);
+                rand = Math.floor(Math.random()*2);
                 if(rand == 1) 
                 {
-                  p.status.ignite.dot = player.atk * 0.2;
-                  p.status.ignite.last = 3;
-                  p.status.ignite.source = player;
-                  record += dis_player(p) + " 受到點燃，持續3回合。\n"
+                  p.ignite(3,player.atk * 0.2,player)
+                  record += dis_player(p) + " 受到點燃，持續3回合\n"
                 }
               }
             break;
             
+            case "A3":  //kiana
+              player.attack(target, 1.8, "聖槍投雷", "thunder");
+              player.attack(t2, 1.8, "聖槍投雷", "thunder");
+              target.impair(3,50);
+              t2.impair(3,50);
+            break;
+            
+            case "A4":  
+              player.attack(target, 1.5, "櫻花散", "normal");
+              //target.status["sakura"].count = 3
+              player.increase_cri(3,20)
+              if(target.status.sakura.count >= 3)
+              {
+                player.attack(target, 3, "刃返", "normal");
+                target.status.sakura.count = 0;
+              }
+              //player.increase_cridmg(3,50)
+            break;
+            
+            case "A5":  
+              player.attack(target, 2.8, "星雲激流", "normal");
+            break;
              
             case "A6":
-              if( attack(target, 3, "寸勁．開天", "normal") == "dead") return;
-              let rand = Math.floor(Math.random()*5);
+              if( player.attack(target, 3, "寸勁．開天", "normal") == "dead") return;
+              rand = Math.floor(Math.random()*5);
               if(rand == 1)
               {
-                target.status.faint.last = 1;
-                record += dis_player(target) + " 受到暈眩，暫停一回合。\n"
+                target.faint(1);
+                record += dis_player(target) + " 受到暈眩，暫停一回合\n"
               }
             break;
+              
+            case "A7":
+              if(target.status.conductive.last && t2.status.conductive.last)
+              {
+                player.attack(target, 1.5, "超限釋放", "thunder")
+                player.attack(t2, 1.5, "超限釋放", "thunder")
+              }
+              else
+              {
+                target.conductive(3,60);
+                t2.conductive(3,60);
+                record += dis_player(player) + "【超導效應】敵方全體感電 60%，持續 3 回合" + "\n"
+              }
+              if(aibo.type == "A3") aibo.hp_up(aibo.maxhp/10)
+            break;
+            
+            case "A8":
+              player.defense = 1;
+              record += dis_player(player) + " 進入防禦姿態🛡" + "\n"
+            break;
+            
+            case "A9":  // 暗影洪流
+              if(player.burst == 0) 
+              {  
+                player.burst = 1
+                player.atk_up += 0.3;
+                player.cri_up += 20;
+                record += dis_player(player) + " 進入暗影型態👻" + "\n";
+                if(aibo.type == "S1") aibo.decrease_dmg(3,20);
+              }
+              else normal();
+            break;
+            
+            case "S0":  
+              player.attack(target, 2.5, "虛界降臨", "normal");
+              player.attack(t2, 2.5, "虛界降臨", "normal");
+              player.attack(aibo, 2.5, "虛界降臨", "normal");
+              player.increase_atk(3,15)
+            break;
+              
+            case "S1":  // 暗影洪流
+              if(player.burst == 0) 
+              {  
+                player.burst = 1
+                player.attack(target, 2, "天使重構", "ice")
+                player.attack(t2, 2, "天使重構", "ice")
+                record += dis_player(player) + " 進入騎乘模式🏍" + "\n";
+                if(aibo.type == "A9") aibo.increase_sp_gaining(3,60);
+              }
+              else normal();
+            break;
+              
+            case "S2":
+              player.attack(target, 1.6, "閃亮亮必殺", "normal");
+              player.attack(t2, 1.6, "閃亮亮必殺", "normal");
+              player.decrease_dmg(3, 20)
+              aibo.decrease_dmg(3, 20)
+            break; 
+            
+            case "bella":
+              rand = Math.floor(Math.random()*3)
+              var element = 0; 
+              if(rand == 0) element = "fire"
+              else if(rand == 1) element = "thunder"
+              else if(rand == 2) element = "ice"
+              player.attack(target, 1.5, "龍之吐息", element);
+              player.attack(t2, 1.5, "龍之吐息", element);
+              target.impair(3, 50)
+              t2.impair(3, 50)
+            break; 
               
             default:
               return;
@@ -361,24 +619,87 @@ module.exports.run = async(bot, message, args) =>{
         if(player.sp >= 1000) ult();      // 尻大招
         else normal();                      //普攻
       }    
-        
+      
+      player.attack = function(man, atk_rate, atk_name, atk_type)  //deal damage
+      {
+        if(man.hp <= 0) return "not alive";
+        let dmg = 0;
+        rand = Math.floor(Math.random()*10000 + 1); // 爆擊判定用
+        if(atk_type == "normal") // 普通傷害
+        {    
+          dmg = player.atk * atk_rate;
+          if(rand <= player.cri*100) 
+          {
+            dmg *= player.cridmg; // 有爆
+            atk_name += "爆擊"
+          }
+          rand = Math.random()*0.2 + 0.8;
+          dmg *= rand;
+        }
+        else  // 元素傷害
+        {
+          rand = Math.random()*0.2 + 0.8;
+          dmg = player.atk * atk_rate * rand;
+        }
+        return man.on_hit(dmg, atk_type, atk_name, player);
+      }
+      
       player.on_hit = function(dmg, atk_type, atk_name, source) //玩家被打
       {
-        if(player.hp <= 0) return "dead";
+        if(player.hp <= 0) return "not hit";
         let damage = function()
         {
           if(atk_type == "normal") dmg -= player.def;
+          if(atk_type == "thunder" && player.status["conductive"].last) dmg *= (1 + player.status["conductive"].percent/100)
           if(dmg < 1) dmg = 1;
           player.hp -= dmg;
-          player.sp += dmg/player.maxhp * 1500;      //受傷回能
+          let sp_gain = dmg/player.maxhp * 1500 * player.sp_gaining
+          switch(player.type)
+          {
+            case "A3":
+              if(player.aibo_obj.type == "A7") player.aibo_obj.sp += sp_gain/3;
+            break;
+          }
+          player.sp += sp_gain     //受傷回能
+          if(atk_name.includes("星雲激流")) source.hp_up(dmg*0.2)
           return;
         }
+        
         switch(player.type)
         {
-          case "A5":
-            if(atk_type != "normal") dmg = 0   
+          case "bella":  // 龍之血脈
+            if(atk_type == "normal") dmg *= 0.5   
           break;
+            
+          case "A5":  // 星光賜福
+            if(atk_type != "normal") dmg *= 0.5   
+          break;
+          
+          case "A8":  // 防禦反擊
+            if(atk_name.includes("點燃")) break;
+            if(player.defense)
+            {
+              player.attack(source, 2.7, "防禦反擊", "normal")
+              player.increase_cri(3,25)
+              player.aibo_obj.increase_cri(3,25)
+              player.defense = 0;
+              return "hit";
+              break;
+            }
+          break;
+            
+          case "A9":  // 量子身軀
+            rand = Math.floor(Math.random()*100 + 1)
+            let num = 15;
+            if(player.burst) num = 30
+            if(rand <= num)
+            {
+              record += dis_player(source) + "【"+ atk_name + "】受到閃避" + "\n";
+              return;
+            } 
+          break       
         }
+        if(player.status["decrease_dmg"].last) dmg *= 1 - player.status["decrease_dmg"].percent/100;
         damage();
         let emoji = "🗡";
         let emoji1 = "🔻";
@@ -396,6 +717,86 @@ module.exports.run = async(bot, message, args) =>{
         if(player.hp <= 0) return "dead";
         else return "hit";
       }
+      
+      ///////////////人物狀態更改//////////////
+      player.impair = function(last,percent) // 降防
+      {
+        player.status["impair"].last = last;
+        player.status["impair"].percent = percent;
+        return;
+      }
+      
+      player.ignite = function(last,dot,source)    //點燃
+      {
+        player.status["ignite"].last = last;
+        player.status["ignite"].dot = dot;
+        player.status["ignite"].source = source;
+        return;
+      }
+      
+      player.faint = function(last)    //暈眩
+      {
+        player.status["faint"].last = last;
+        return;
+      }
+      
+      player.conductive = function(last,percent)    //感電
+      {
+        player.status["conductive"].last = last;
+        player.status["conductive"].percent = percent;
+        return;
+      }
+      
+      player.weaken = function(last,percent)    //虛弱
+      {
+        player.status["weaken"].last = last;
+        player.status["weaken"].percent = percent;
+        return;
+      }
+      
+      player.increase_atk = function(last,percent)    //ATK up
+      {
+        player.status["increase_atk"].last = last;
+        player.status["increase_atk"].percent = percent;
+        return;
+      }
+      
+      player.increase_def = function(last,percent)    //DEF up
+      {
+        player.status["increase_def"].last = last;
+        player.status["increase_def"].percent = percent;
+        return;
+      }
+      
+      player.increase_cri = function(last,percent)    //CRI up
+      {
+        player.status["increase_cri"].last = last;
+        player.status["increase_cri"].percent = percent;
+        return;
+      }
+      
+      player.increase_cridmg = function(last,percent)    //cridmg up
+      {
+        player.status["increase_cridmg"].last = last;
+        player.status["increase_cridmg"].percent = percent;
+        return;
+      }
+      
+      player.decrease_dmg = function(last,percent)
+      {
+        player.status["decrease_dmg"].last = last;
+        player.status["decrease_dmg"].percent = percent;
+        return;
+      }
+      
+      player.increase_sp_gaining = function(last,percent)
+      {
+        player.status["increase_sp_gaining"].last = last;
+        player.status["increase_sp_gaining"].percent = percent;
+        return;
+      }
+      
+      ///////////////////////////////////////
       return player;
     }
   
@@ -403,23 +804,29 @@ module.exports.run = async(bot, message, args) =>{
     var p2 = player(id,vlkys[id].set1[1],"p2");
     var op1 = player(opid,vlkys[opid].set1[0],"op1");
     var op2 = player(opid,vlkys[opid].set1[1],"op2");
+    var dragon = 0;
     p1.initialize(p2,op1,op2);
     p2.initialize(p1,op1,op2);
     op1.initialize(op2,p1,p2);
     op2.initialize(op1,p1,p2);
+    p1.aibo_obj = p2;
+    p2.aibo_obj = p1;
+    op1.aibo_obj = op2;
+    op2.aibo_obj = op1;
   
-    var tp = 0;    //this player
-    var array = []
-    var i = 0;
-    var seq = [];
-    var record = "";
-    var state = "fighting";
-    var turn = 0;
-    var time_wait = 1750;
-  
-    function embed_renew ()
+    function embed_renew (next_one)
     {
       embed = new Discord.RichEmbed();
+      function show_rank(player)
+      {
+        let rank = "🐣"
+        if(vlkys[player.id].rank[player.type] == "A") rank = "🍐"
+        if(vlkys[player.id].rank[player.type] == "S") rank = "🐬"
+        if(vlkys[player.id].rank[player.type] == "SS") rank = "🍆"
+        if(vlkys[player.id].rank[player.type] == "SSS") rank = "⭐"
+        if(vlkys[player.id].rank[player.type] == "EX") rank = "💎"
+        return rank;
+      }
       function show_hp(player)
       {
         if(player.hp < 0) return 0;
@@ -436,7 +843,7 @@ module.exports.run = async(bot, message, args) =>{
         let str = "";
         for(var j = 0 ; j < num ; j++) str += "◽";
         for(var j = 0 ; j < 5 - num ; j++) str += "◾";
-        return str;
+        return str.slice(0,5);
       }
       function show_star(player)
       {
@@ -448,9 +855,11 @@ module.exports.run = async(bot, message, args) =>{
       }
       function show_status(player)
       {
-        let emoji = 0;
+        let emoji = "";
+        if(player == next_one) emoji += "⬅";
+        if(player.status["sakura"].count >= 3) emoji += "🌸"
         for(var status of Object.keys(player.status))
-        {
+        {  
           if(!player.status[status].last) continue;
           if(player.status[status].last > 0)
           {
@@ -461,19 +870,22 @@ module.exports.run = async(bot, message, args) =>{
               case "impair":  emoji += "⏬";  break;
               case "weaken":  emoji += "😰";  break;
               case "conductive":  emoji += "🌩";  break;
-              case "sakura":  if(player.status[status].last >= 3) emoji += "🌸";  break;
               case "increase_atk": emoji += "⚔"; break;
               case "increase_def": emoji += "🛡"; break;
+              case "increase_cri": emoji += "🥊"; break;
+              case "increase_cridmg": emoji += "💥"; break;
+              case "decrease_dmg": emoji += "✝"; break;
+              case "increase_sp_gaining": emoji += "🍺"; break;
             }
           }
         }
         return emoji;
       }
       embed.setTitle("Lv."+p1.lv+" "+man.displayName+" V.S. "+"Lv."+op1.lv+" "+ opponent.displayName).setColor("#00c5a3");
-      embed.addField(dis_player(p1)+show_status(p1), Math.ceil(show_hp(p1))+"/"+Math.floor(p1.maxhp)+" "+ show_heart(p1) + "\n"+Math.floor(show_sp(p1))+"/"+Math.floor(op2.maxsp) +" "+ show_star(p1),true)
-           .addField(dis_player(p2+show_status(p2)), Math.ceil(show_hp(p2))+"/"+Math.floor(p2.maxhp)+" "+ show_heart(p2) +"\n"+Math.floor(show_sp(p2))+"/"+Math.floor(op2.maxsp)+" "+ show_star(p2),true)
-           .addField(dis_player(op1)+show_status(op1), Math.ceil(show_hp(op1))+"/"+Math.floor(op1.maxhp)+" "+ show_heart(op1) +"\n"+Math.floor(show_sp(op1))+"/"+Math.floor(op2.maxsp)+" "+ show_star(op1),true)
-           .addField(dis_player(op2)+show_status(op2), Math.ceil(show_hp(op2))+"/"+Math.floor(op2.maxhp)+" "+ show_heart(op2) +"\n"+Math.floor(show_sp(op2))+"/"+Math.floor(op2.maxsp)+" "+ show_star(op2),true)
+      embed.addField(dis_player(p1)+show_rank(p1)+show_status(p1), Math.ceil(show_hp(p1))+"/"+Math.ceil(p1.maxhp)+" "+ show_heart(p1) + "\n"+Math.floor(show_sp(p1))+"/"+Math.floor(op2.maxsp) +" "+ show_star(p1),true)
+           .addField(dis_player(p2)+show_rank(p2)+show_status(p2), Math.ceil(show_hp(p2))+"/"+Math.ceil(p2.maxhp)+" "+ show_heart(p2) +"\n"+Math.floor(show_sp(p2))+"/"+Math.floor(op2.maxsp)+" "+ show_star(p2),true)
+           .addField(dis_player(op1)+show_rank(op1)+show_status(op1), Math.ceil(show_hp(op1))+"/"+Math.ceil(op1.maxhp)+" "+ show_heart(op1) +"\n"+Math.floor(show_sp(op1))+"/"+Math.floor(op2.maxsp)+" "+ show_star(op1),true)
+           .addField(dis_player(op2)+show_rank(op2)+show_status(op2), Math.ceil(show_hp(op2))+"/"+Math.ceil(op2.maxhp)+" "+ show_heart(op2) +"\n"+Math.floor(show_sp(op2))+"/"+Math.floor(op2.maxsp)+" "+ show_star(op2),true)
       embed.setDescription(record)
       return embed;
     }
@@ -541,18 +953,18 @@ module.exports.run = async(bot, message, args) =>{
       else return "finding error"
     }
     
-    var msg = await message.channel.send(embed_renew()); //丟初始訊息
     seq.push(p1)  // 初始化對戰序列
     seq.push(p2)
     seq.push(op1)
     seq.push(op2)
     seq.sort(function(a, b){return b.agi - a.agi});
+    renew_all();
+    var msg = await message.channel.send(embed_renew(seq[0])); //丟初始訊息
   
     while(state == "fighting")   //正式開打
     {
        duellist[id].now = 1;
        fs.writeFileSync("./duellist.json",JSON.stringify(duellist));
-       if(turn >= seq.length) turn = 0
        tp = seq[turn]
        if(tp.hp <= 0) 
        {
@@ -564,7 +976,7 @@ module.exports.run = async(bot, message, args) =>{
        if(tp.status.faint.last > 0)
        {
          tp.status.faint.last --
-         record += dis_player(tp) + " 遭到暈眩，回合暫停。\n"
+         record += dis_player(tp) + " 遭到暈眩，回合暫停\n"
          turn ++;
          continue;
        }
@@ -579,16 +991,48 @@ module.exports.run = async(bot, message, args) =>{
            i--;
          }
        }
+       if(tp.type == "S0" && tp.count && tp.aibo_obj.hp <= 0 && dragon == 0)  // 崩壞使者
+       {
+         dragon = 1
+         if(tp.aibo_obj.position == "p1") 
+         {
+           p1 = player(tp.id,"bella","p1")
+           seq.push(p1)
+           p1.aibo = tp.position
+           p1.aibo_obj = tp
+         }
+         else if(tp.aibo_obj.position == "p2") 
+         {
+           p2 = player(tp.id,"bella","p2")
+           seq.push(p2)
+           p2.aibo = tp.position
+           p2.aibo_obj = tp
+         }
+         else if(tp.aibo_obj.position == "op1") 
+         {
+           op1 = player(tp.id,"bella","op1")
+           seq.push(op1)
+           op1.aibo = tp.position
+           op1.aibo_obj = tp
+         }
+         else if(tp.aibo_obj.position == "op2") 
+         {
+           op2 = player(tp.id,"bella","op2")
+           seq.push(op2)
+           op2.aibo = tp.position
+           op2.aibo_obj = tp
+         }
+       }
+      
        if(seq.length == 0) state = "even";
-       if(!seq.find(x => x == op1) && !seq.find(x => x == op2)) state = "win";
-       if(!seq.find(x => x == p1) && !seq.find(x => x == p2)) state = "lose";
-      
-       if(tp.status.ignite.last && state == "fighting")  tp.on_hit(tp.status.ignite.dot, "fire", "點燃", tp.status.ignite.source)
-      
-       await sleep(time_wait);
-       msg.edit(embed_renew());
+       else if(!seq.find(x => x == op1) && !seq.find(x => x == op2)) state = "win";
+       else if(!seq.find(x => x == p1) && !seq.find(x => x == p2)) state = "lose";
+       else turn += 1;
        
-       turn += 1
+       if(tp.status.ignite.last && state == "fighting")  tp.on_hit(tp.status.ignite.dot, "fire", "點燃", tp.status.ignite.source)
+       if(turn >= seq.length) turn = 0;
+       await sleep(time_wait);
+       msg.edit(embed_renew(seq[turn]));
     }
   
     duellist[id].now = 0;
@@ -597,21 +1041,21 @@ module.exports.run = async(bot, message, args) =>{
     if(state == "win")
     {
       await sleep(time_wait);
-      record += "🏆 " + man.displayName + " 獲勝。";
+      record += "🏆 " + man.displayName + " 獲勝";
       msg.edit(embed_renew());
       return;
     }
     else if(state == "lose")
     {
        await sleep(time_wait);
-       record += "🌶🐔 " + man.displayName + " 被屌虐。"
+       record += "🌶🐔 " + man.displayName + " 被屌虐"
        msg.edit(embed_renew());
       return
     }
     else if(state == "even")
     {
        await sleep(time_wait);
-       record += "雙方平手。"
+       record += "雙方平手"
        msg.edit(embed_renew());
       return
     }

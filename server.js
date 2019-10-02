@@ -83,7 +83,7 @@ bot.on("ready",function() {
 
 bot.on('message', (message) => {
     if(message.author.id == '433287968292339722') return;
-    if(message.channel.type == "dm") return message.author.send("芽衣才沒空和你聊天呢");
+    
 
     //var messageArray = message.content.slice(prefix.length).trim().split(" ");
     var messageArray = message.content.split(" ");
@@ -91,7 +91,14 @@ bot.on('message', (message) => {
     var args = messageArray;
     if(args[1]) {var opid = args[1].slice(2,-1);  
                  if(opid.startsWith("!")) opid = opid.slice(1);}   //id of first mentioned person
-    
+    if(message.channel.type == "dm" && cmd == "set")
+    {
+       let commandfile = bot.commands.get(cmd);
+       commandfile.run(bot,message,args);
+       return;
+    }
+    if(message.channel.type == "dm" ) return message.author.send("芽衣才沒空和你聊天呢");
+  
     var id = message.author.id;
     let now = new Date();
     let today = now.getDay();
@@ -102,18 +109,8 @@ bot.on('message', (message) => {
       let ch = message.guild.channels.get("538904002885320705");
       ch.send((message.attachments.array())[0].url);
     }
-    //if(man.roles.find(`name`,"bot") != null) return;
-
-    /*let tempmute = function(id,time){
-        let tomute = message.guild.members.get(id);
-        let muterole = message.guild.roles.find(`name`,"泡水海豹");
-        tomute.addRole(muterole.id);
-        setTimeout(function(){
-            tomute.removeRole(muterole.id);
-        },time);
-    }*/
     
-     let tempmute = function(id,ptime){
+    let tempmute = function(id,ptime){
         let tomute = message.guild.members.get(id);
         let muterole = message.guild.roles.find(role => role.name === "泡水海豹");
         tomute.addRole(muterole.id);
@@ -236,7 +233,7 @@ bot.on('message', (message) => {
             tem = Math.ceil(tem * 1.5);
             message.channel.send("你對海豹造成了爆擊。");
           }
-          let exp = Math.floor(tem/3);
+          let exp = Math.ceil(tem/500);
           lvup(id,exp);
           
           let pTime = count * tem * 600;
@@ -268,7 +265,7 @@ bot.on('message', (message) => {
           .setColor("#DC9FB4")
           .addField(message.guild.members.get(id).displayName,"獵殺海豹獲得 "+  Math.ceil(pTime/5000) + " 獎勵水晶以及 " + exp + " 武器經驗")
           .addField(message.guild.members.get(opid).displayName,"泡水海豹獲得 "+  Math.ceil(pTime/10000) + " 撫卹水晶")
-          .addField("Others","參與者各獲得 "+  Math.ceil(pTime/30000) + " 分贓水晶以及 "+ + Math.ceil(pTime/40000) + " 武器經驗")
+          .addField("Others","參與者各獲得 "+  Math.ceil(pTime/30000) + " 分贓水晶以及 "+  Math.ceil(pTime/40000) + " 武器經驗")
           .setThumbnail("https://i.imgur.com/O9WA8tx.png");
           if(pTime)message.channel.send(ee);
           fs.writeFileSync("./crystals.json",JSON.stringify(crystals));
