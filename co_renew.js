@@ -12,9 +12,10 @@ const vlkys = require("./vlkys.json");
 const stars = require("./stars.json");
 const gachalist = require("./gachalist.json");
 const co_timer = require("./co_timer.json");
+const duellist = require("./duellist.json");
+const duelcount = require("./duelcount.json");
 
 module.exports.run = async(bot, message, args) =>{
-  
     let now = new Date();
     now = new Date(now.getTime() + 8*60*60*1000);
     var man = 0;
@@ -102,11 +103,14 @@ module.exports.run = async(bot, message, args) =>{
       }
       else
       {
+        total = 0
+        for(i of Object.keys(corp.sharelist)) total += corp.sharelist[i]
         embed = new Discord.RichEmbed();
         string = "";
         embed.setColor("#53e119").setTitle("公司："+ vlkylist[type].name)
         embed.addField("經理人",message.guild.members.get(corp.owner).displayName,true)
         embed.addField("參考市價",corp.price,true)
+        embed.addField("總釋股數",total,true)
         embed.addField("日成交量",corp.volume,true)
         embed.addField("資本額",corp.funds,true)
         embed.addField("剩餘分紅",corp.bonus,true)
@@ -120,7 +124,7 @@ module.exports.run = async(bot, message, args) =>{
       return;
     }
   
-     function ranklist(rank,srank)  // required num of chips for rank up
+    function ranklist(rank,srank)  // required num of chips for rank up
     {
       if(rank == "None" && srank == "A") return 30;
       if(rank == "None" && srank == "S") return 80;
@@ -256,6 +260,8 @@ module.exports.run = async(bot, message, args) =>{
                  corp.funds -= corp.sharelist[person]*num;
                }
              }
+             channel = message.guild.channels.get("621999946429628416");
+             channel.send(vlkylist[corp.type].name +" 公司分紅： " + "每股獲得 " + num + " 星石。");
            }
          }
         banner_renew(type);
@@ -285,6 +291,20 @@ module.exports.run = async(bot, message, args) =>{
              }
            }   
            corp.volume = 0;
+           
+           total = 0;                                 // 好感度提升
+           for( i of Object.keys(corp.sharelist))
+           {
+             total += corp.sharelist[i]
+           }
+           for( person of Object.keys(vlkys))
+           {
+             if(!vlkys[person].favor) vlkys[person].favor = {"B0":0}
+             if(!vlkys[person].favor[corp.type]) vlkys[person].favor[corp.type] = 0
+             vlkys[person].favor[corp.type] += Math.ceil(corp.sharelist[person]/total)
+           }
+           
+           
            len = corp.buy.length;      //清空買賣單
            for(i = 0 ; i < len ; i++)
            {
@@ -293,19 +313,26 @@ module.exports.run = async(bot, message, args) =>{
            }
            while(corp.buy.length) corp.buy.pop();
            while(corp.sell.length) corp.sell.pop();
-           if(type != "BO") order_renew(type);
          }
          else if(corp.enable && corp.now == 1)  //新創
          {
            if((now.getTime() - corp.time > 2 * length_day && count(corp.newlist) >= 5) || count(corp.newlist) >= 20)
            {
              build(corp);
-             banner_renew(type);
            }
          }
       }
+      
+      for(person of Object.keys(duelcount)) // 重置pve次數
+      {
+        duelcount[person].pve = 3;
+      }
+      fs.writeFileSync("./duelcount.json",JSON.stringify(duelcount));
+      
       co_timer.date = now.getDate();
       fs.writeFileSync("./colist.json",JSON.stringify(colist));
+      fs.writeFileSync("./stars.json",JSON.stringify(stars));
+      fs.writeFileSync("./vlkys.json",JSON.stringify(vlkys));
       fs.writeFileSync("./co_timer.json",JSON.stringify(co_timer));
       return;
     }
@@ -344,16 +371,25 @@ module.exports.run = async(bot, message, args) =>{
           }
         }
         
-        corp.buy.sort(function(a, b){return b.price - a.price;});        //低成交量釋股
+        corp.buy.sort(function(a, b){return b.price - a.price;});    //低成交量釋股
         len = corp.buy.length;
         total = 0;
-        for(i = 0 ; i < len ; i++)    // 計算買價高於市價30%以上之總數量
+        let num_of_person = 0
+        for(i = 0 ; i < len ; i++)    // 計算買價高於市價以上之總數量
         {
           if(corp.buy[i].price > Math.ceil(corp.price)) total += corp.buy[i].num;
+          num_of_person ++
         }
-        if((corp.volume*10 < total))
+        let limit = total;
+        if((corp.volume*10 < total) && corp.sell.length == 0) // 限制成交量*10小於總單數以上才釋股
         {
-          rand = Math.floor(Math.random()*total/2 + 1);     
+          total = 0;
+          for( i of Object.keys(corp.sharelist))
+          {
+            total += corp.sharelist[i]  // 計算總釋股數
+          }
+          rand = Math.floor(Math.random()*Math.sqrt(total) + 1);  //上限為根號總釋股數    
+          if(rand > limit) rand = limit
           so = 
           {
             owner: "433287968292339722",
@@ -423,6 +459,7 @@ module.exports.run = async(bot, message, args) =>{
       fs.writeFileSync("./colist.json",JSON.stringify(colist));
       fs.writeFileSync("./co_timer.json",JSON.stringify(co_timer));
       fs.writeFileSync("./coplayer.json",JSON.stringify(coplayer));
+      fs.writeFileSync("./stars.json",JSON.stringify(stars));
       fs.writeFileSync("./vlkys.json",JSON.stringify(vlkys));
       return;
     }

@@ -91,7 +91,7 @@ bot.on('message', (message) => {
     var args = messageArray;
     if(args[1]) {var opid = args[1].slice(2,-1);  
                  if(opid.startsWith("!")) opid = opid.slice(1);}   //id of first mentioned person
-    if(message.channel.type == "dm" && cmd == "set")
+    if(message.channel.type == "dm" && cmd == "EE")
     {
        let commandfile = bot.commands.get(cmd);
        commandfile.run(bot,message,args);

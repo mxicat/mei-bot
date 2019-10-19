@@ -10,6 +10,7 @@ const rolelist = require("./rolelist.json");
 const coinlist = require("./coinlist.json");
 const vlkys = require("./vlkys.json");
 const stars = require("./stars.json");
+const duelcount = require("./duelcount.json");
 
 module.exports.run = async(bot, message, args) =>{
     var id = message.author.id;
@@ -178,7 +179,10 @@ module.exports.run = async(bot, message, args) =>{
     embed.addField(man.displayName,`水晶數量：**${crystals[id].crystals}** `);
   
     coinlist[id].ltd = 0; //reset ttc
+    
+    duelcount[id].pvp = 3;
   
+    fs.writeFileSync("./duelcount.json",JSON.stringify(duelcount));
     fs.writeFileSync("./coinlist.json",JSON.stringify(coinlist));
     fs.writeFileSync("./crystals.json",JSON.stringify(crystals));
     fs.writeFileSync("./energy.json",JSON.stringify(energy));

@@ -11,7 +11,6 @@ const points = require("./points.json");
 const vlkys = require("./vlkys.json");
 const vlkylist = require("./vlkylist.json");
 const duellist = require("./duellist.json");
-const duelcount = require("./duelcount.json");
 const stars = require("./stars.json");
 
 module.exports.run = async(bot, message, args) =>{
@@ -26,88 +25,14 @@ module.exports.run = async(bot, message, args) =>{
       fs.writeFileSync("./duellist.json",JSON.stringify(duellist));
       return message.reply("戰鬥已重置");
     }
-    else if(args[1] == "pve")
+   
+    var opid = "tower"
+    opponent = message.guild.members.get("433287968292339722")
+    var lv = 0;
+  
+    if(args[1] && !args[2])
     {
-      if(duelcount[id].pve < 1) return message.reply("本日已達次數限制。")
-      var opid = "tower"
-      opponent = message.guild.members.get("433287968292339722")
-    }
-    else if(args[1] == "info")
-    {
-      let em = new Discord.RichEmbed()
-      let str = ""
-      if(!duelcount[id].match.history) duelcount[id].match.history = []
-      for(i = 0 ; i < duelcount[id].match.history.length ; i++)
-      {
-        str += duelcount[id].match.history[i]
-        str += "\n"
-      }
-      em.setTitle(man.displayName + "：PVP紀錄")
-      em.setDescription(str)
-      em.addField("勝場/敗場", duellist[id].win + "/" + duellist[id].lose)
-      return message.channel.send(em)
-    }
-    else if(args[1] == "pvp")
-    {
-      if(!duelcount[id].match) duelcount[id].match = {now:0, list:[], history:[]}
-      function show_pvp(array)
-      {
-        let str = ""
-        let em = new Discord.RichEmbed()
-        em.setTitle(man.displayName + "的PVP選項")
-        for(i = 0 ; i < array.length ; i++)
-        {
-          let p = message.guild.members.get(array[i])
-          str += show_rank(i+1) + "　" + p.displayName + "　等級：" + vlkys[array[i]].status.lv + "　積分：" + duellist[array[i]].elo + "\n" 
-        }
-        em.setDescription(str);
-        return em;
-      }
-      if(!args[2] || !duelcount[id].match.now)
-      {
-        //if(duelcount[id].match.now) return message.channel.send(show_pvp(duelcount[id].match.list));
-        if(!(vlkys[id].set1[0] && vlkys[id].set1[1])) return message.reply("未設置出戰女武神。")
-        if(duelcount[id].pvp < 1) return message.reply("本日已達次數限制。")
-        duelcount[id].match.list = new Array();
-        duelcount[id].match.list = [];
-        let person = 0;
-        let list = new Array();
-        list = [];
-        for(person of Object.keys(duellist))
-        {
-          if((vlkys[person].set1[0] && vlkys[person].set1[1])) list.push(person)
-        }
-        list.sort(function(a,b){ return duellist[b].elo -  duellist[a].elo})
-        let index = list.findIndex(x => x == id)
-        if(index-3 >= 0) duelcount[id].match.list.push(list[index-3])
-        if(index-2 >= 0) duelcount[id].match.list.push(list[index-2])
-        if(index-1 >= 0) duelcount[id].match.list.push(list[index-1])
-        if(list[index+1]) duelcount[id].match.list.push(list[index+1])
-        if(list[index+2]) duelcount[id].match.list.push(list[index+2])
-        
-        duelcount[id].match.now = 1
-        fs.writeFileSync("./duellist.json",JSON.stringify(duellist));
-        fs.writeFileSync("./duelcount.json",JSON.stringify(duelcount));
-        return message.channel.send(show_pvp(duelcount[id].match.list));
-      }
-      else
-      {
-        if(!duelcount[id].match.now) return message.reply("請先輸入 duel pvp 進行配對")
-        let num = Math.floor(parseInt(args[2]));
-        if(!Number.isInteger(num)) return message.reply("請輸入正確編號。");
-        if(num <= 0) return message.reply("請輸入正確編號。");
-        
-        opid = duelcount[id].match.list[num-1]
-        opponent = message.guild.members.get(opid);
-        if(!opponent) return message.channel.send("錯誤的對象。")
-        if(opid == id) return message.channel.send("錯誤的對象。");
-      }      
-    }
-    else 
-    {
-      return message.reply("請輸入 duel pvp/pve，若欲進行單挑請使用duelt。")
       if(!(vlkys[id].set1[0] && vlkys[id].set1[1])) return message.reply("未設置出戰女武神。")
-      if(duelcount[id].pvp < 1) return message.reply("本日已達次數限制。")
       if(args[1]) 
       {
         var opid = args[1].slice(2,-1);
@@ -117,8 +42,19 @@ module.exports.run = async(bot, message, args) =>{
       opponent = message.guild.members.get(opid);
       if(!opponent) return message.channel.send("錯誤的對象。")
       if(opid == id) return message.channel.send("錯誤的對象。");
-      
+      lv = vlkys[opid].status.lv
       if(!(vlkys[opid].set1[0] && vlkys[opid].set1[1])) return message.reply("對方未設置出戰女武神。")
+    }
+    else if(!(vlkylist[args[1]] && vlkylist[args[2]]))
+    {
+      return message.reply("請輸入正確的女武神編號。")
+    }
+    else
+    {
+    if(!args[3]) return message.reply("請輸入欲設置的等級。")
+    lv = Math.floor(parseInt(args[3]));
+    if(!Number.isInteger(lv)) return message.reply("請輸入正確整數。");
+    if(lv <= 0) return message.reply("請輸入正整數。");
     }
     
     if(!duellist[id]) duellist[id] = {now:0, win:0, lose:0, elo:1000, tower:1}
@@ -214,11 +150,6 @@ module.exports.run = async(bot, message, args) =>{
       if(vlkys[id].rank[type] == "SSS") mp = 1.25
       if(vlkys[id].rank[type] == "EX") mp = 1.4
       else mp = 1.4;
-      let ml = 1
-      if(vlkys[id].favor[type]) ml += (vlkys[id].favor[type]/10000)/10  // 好感度補償
-      if(ml > 1.1) ml = 1.1
-      //if(vlkys[id].marry[type] == 1) ml += 0.05;
-      mp *= ml
       
       player.sp = 0;
       player.sp_up = 1;
@@ -290,7 +221,7 @@ module.exports.run = async(bot, message, args) =>{
           player.heal_up += 0.2;
         }
         if(player.type == "A7") player.sp_gaining_up += 0.5;  //雷影被動 
-        if(player.type == "bella") player.sp_gaining_up += 0.3; //龍之血脈
+        if(player.type == "bella") player.sp_gaining_up += 1; //龍之血脈
         return;
       }
       
@@ -618,7 +549,7 @@ module.exports.run = async(bot, message, args) =>{
               player.attack(target, 1.5, "櫻花散", "normal");
               player.attack(t2, 1.5, "櫻花散", "normal");
               player.increase_cri(3,20)
-              //player.increase_cridmg(3,50)
+              
             break;
             
             case "A5":  
@@ -911,60 +842,17 @@ module.exports.run = async(bot, message, args) =>{
     var op2 = 0
     vlkys["tower"] = {vlkys : {"B0":1, "A0":1, "A1":1, "A2":1, "A3":1, "A4":1, "A5":1, "A6":1, "A7":1, "A8":1, "A9":1, "S0":1, "S1":1, "S2":1},
                         rank:{"B0":"SS", "A0":"SS", "A1":"SS", "A2":"SS", "A3":"SS", "A4":"SS", "A5":"SS", "A6":"SS", "A7":"SS", "A8":"SS", "A9":"SS", "S0":"SS", "S1":"SS", "S2":"SS"},
-                        status: {"lv":duellist[id].tower, "exp":0}, set1:[0,0], set2:[0,0], set3:[0,0], favor:{"B0":0}, marry:{"B0":0}};
-    if(args[1] == "pve")
+                        status: {"lv":lv, "exp":0}, set1:[0,0], set2:[0,0], set3:[0,0], favor:{"B0":0}};
+    if(args[1] && !args[2])
     {
-      if(args[2] && args[3] && vlkylist[args[2]] && vlkylist[args[3]])
-      {
-        op1 = player("tower", args[2], "op1");
-        op2 = player("tower", args[3], "op2");
-      }
-      else
-      {
-        const vlkyset1 = [ ["A0","A1"], ["A2","A6"], ["A3","A7"], ["A4","A5"], ["A8","S2"], ["A9","S1"], "S0"]
-        const vlkyset2 = ["A0", "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "S1", "S2"]
-        rand = Math.floor(Math.random()*7);
-        let tower_op = vlkyset1[rand];
-        if(tower_op == "S0")
-        {
-          rand = Math.floor(Math.random()*12);
-          tower_op = ["S0",vlkyset2[rand]]
-        }
-        if(rand % 2) tower_op = tower_op.reverse()
-        op1 = player("tower", tower_op[0], "op1");
-        op2 = player("tower", tower_op[1], "op2");
-      }
+      op1 = player(opid, vlkys[opid].set1[0], "op1");
+      op2 = player(opid, vlkys[opid].set1[1], "op2");
     }
     else
     {
-      if(!vlkys[opid].set2[0] || !vlkys[opid].set3[0])
-      {
-        op1 = player(opid,vlkys[opid].set1[0],"op1");
-        op2 = player(opid,vlkys[opid].set1[1],"op2");
-      }
-      else
-      {
-        rand = Math.floor(Math.random()*3)
-        switch(rand)
-        {
-          case 0:
-            op1 = player(opid,vlkys[opid].set1[0],"op1");
-            op2 = player(opid,vlkys[opid].set1[1],"op2");
-          break;
-          
-          case 1:
-            op1 = player(opid,vlkys[opid].set2[0],"op1");
-            op2 = player(opid,vlkys[opid].set2[1],"op2");
-          break;
-            
-          case 2:
-            op1 = player(opid,vlkys[opid].set3[0],"op1");
-            op2 = player(opid,vlkys[opid].set3[1],"op2");
-          break;
-        }
-      }
+      op1 = player("tower", args[1], "op1");
+      op2 = player("tower", args[2], "op2");
     }
-    
     p1.initialize(p2,op1,op2);
     p2.initialize(p1,op1,op2);
     op1.initialize(op2,p1,p2);
@@ -1194,202 +1082,31 @@ module.exports.run = async(bot, message, args) =>{
        await sleep(time_wait);
        msg.edit(embed_renew(seq[turn]));
     }
-  
-    
-    function count_elo(p_elo, op_elo,state)
-    {
-      let num = 0;
-      if(state == "win")
-      {
-        num = Math.floor(14*Math.exp(-0.004*(p_elo-op_elo)))
-        let dif = vlkys[id].status.lv - vlkys[opid].status.lv
-        if(dif > 0) num -= Math.ceil((num/10)*dif)
-        if(num < 1) num = 1;
-        if(num > 50) num = 50;
-      }
-      else if(state == "lose")
-      {
-        num = Math.floor(14*Math.exp(-0.004*(op_elo-p_elo)))
-        if(num < 4) num = 4;
-        if(num > 29) num = 29;
-      }
-      else return 0;
-      return num;
-    }
-    
-    function show_exp()
-    {
-      let num = Math.ceil( 5 - 5*(vlkys[id].status.exp/explist(vlkys[id].status.lv)) );
-      let str = "🏁";
-      if(num > 5) num = 5
-      for(var j = 0 ; j < num ; j++) str += "🥕";
-      return str.concat("🏇");
-    }
-    
-    function find_rank(id)
-    {
-      let rank_array = (Object.keys(duellist)).sort(function(a, b){return duellist[b].elo - duellist[a].elo})
-      var re_num = 0;
-      for(i = 0 ; i < rank_array.findIndex(x => x == id) ; i++)
-      {
-        if(duellist[rank_array[i]].win + duellist[rank_array[i]].lose == 0) continue;
-        else re_num ++;
-      }
-      return "#" + (re_num + 1) + " ";
-    }
-    
-    function array_ten(array)
-    {
-      while(array.length > 10) array.shift();
-      return array;
-    }
-    //////////
-  
     
     let embed1 = 0;
     let num = 0;
     if(state == "win")
     {
       record += "🏆 " + man.displayName + " 獲勝\n";
-      
-      if(args[1] != "pve")
-      {
-        num = count_elo(duellist[id].elo, duellist[opid].elo, state)
-        embed1 = embed_renew();
-        duellist[id].elo += num;
-        duellist[opid].elo -= num + 1;
-        duellist[id].win ++
-        if(!duelcount[id].match.history) duelcount[id].match.history = []
-        if(!duelcount[opid].match.history) duelcount[opid].match.history = []
-        duelcount[id].match.history.push("🗡 " + opponent.displayName + " 🏆" + duellist[id].elo +` (🔺${num})`)
-        duelcount[opid].match.history.push("🛡 " + man.displayName + " 🌶🐔" + duellist[opid].elo +` (🔻${num+1})`)
-        array_ten(duelcount[id].match.history)
-        array_ten(duelcount[opid].match.history)
-        embed1.addField(find_rank(id) + man.displayName,duellist[id].elo + ` (🔺${num})`,true)
-        embed1.addField(find_rank(opid) + opponent.displayName,duellist[opid].elo + ` (🔻${num + 1})`,true)
-      }
-      else
-      {
-        let exp = tower_exp(duellist[id].tower)
-        record += "🏹 " + man.displayName + " 獲得了" + `**${exp}**` + " 點經驗及 " + `**${duellist[id].tower*8}**` +" 點星石\n"
-        embed1 = embed_renew();
-        lvup(id,exp)
-        stars[id].stars += duellist[id].tower*8
-        duellist[id].tower++
-        embed1.addField(man.displayName + " - 女武神等級",`LV.${vlkys[id].status.lv} (${vlkys[id].status.exp}/${explist(vlkys[id].status.lv)})` + show_exp(),true)
-      }
-      msg.edit(embed1);
+      msg.edit(embed_renew(seq[turn]));
     }
     else if(state == "lose")
     {
        record += "🌶🐔 " + man.displayName + " 被屌虐\n"
-       if(args[1] != "pve")
-       {
-         num = count_elo(duellist[id].elo, duellist[opid].elo, state)
-         duellist[id].elo -= num + 1;
-         duellist[opid].elo += num;
-         duellist[id].lose ++
-         if(!duelcount[id].match.history) duelcount[id].match.history = []
-         if(!duelcount[opid].match.history) duelcount[id].match.history = []
-         duelcount[id].match.history.push("🗡 " + opponent.displayName + " 🌶🐔" + duellist[id].elo +` (🔻${num+1})`)
-         duelcount[opid].match.history.push("🛡 " + man.displayName + " 🏆" + duellist[opid].elo +` (🔺${num})`)
-         array_ten(duelcount[id].match.history)
-         array_ten(duelcount[opid].match.history)
-         embed1 = embed_renew();
-         embed1.addField(find_rank(id) + man.displayName,duellist[id].elo + ` (🔻${num + 1})`,true)
-         embed1.addField(find_rank(opid) + opponent.displayName,duellist[opid].elo + ` (🔺${num})`,true)
-       }
-       else
-       {
-          let exp = Math.floor(tower_exp(duellist[id].tower)/2)
-          record += "🏹 " + man.displayName + " 獲得了" + `**${exp}**` + " 點經驗\n"
-          embed1 = embed_renew();
-          lvup(id,exp)
-          embed1.addField(man.displayName + " - 女武神等級",`LV.${vlkys[id].status.lv} (${vlkys[id].status.exp}/${explist(vlkys[id].status.lv)})` + show_exp(),true)
-       }
-       msg.edit(embed1);
+       msg.edit(embed_renew(seq[turn]));
     }
     else if(state == "even")
     {
        record += "🍎 雙方平手"
-       embed1 = embed_renew();
-       if(args[1] != "pve")
-       {
-         embed1 = embed_renew();
-         embed1.addField(man.displayName,duellist[id].elo,true)
-         embed1.addField(opponent.displayName,duellist[opid].elo,true)
-         
-       }
-       msg.edit(embed1);
+       msg.edit(embed_renew(seq[turn]));
     }
     duellist[id].now = 0;
-    if(args[1] == "pve") duelcount[id].pve --
-    else duelcount[id].pvp --
-    duelcount[id].match.list = []
-    duelcount[id].match.now = 0
     fs.writeFileSync("./vlkys.json",JSON.stringify(vlkys));
     fs.writeFileSync("./duellist.json",JSON.stringify(duellist));
-    fs.writeFileSync("./duelcount.json",JSON.stringify(duelcount));
     fs.writeFileSync("./stars.json",JSON.stringify(stars));
-  
-    function show_rank(num)
-    {
-      switch(num)
-      {
-        case 1 : return ":one:";  break;
-        case 2 : return ":two:";  break;
-        case 3 : return ":three:";  break;
-        case 4 : return ":four:";  break;
-        case 5 : return ":five:";  break;
-        case 6 : return ":six:";  break;
-        case 7 : return ":seven:";  break;
-        case 8 : return ":eight:";  break;
-        case 9 : return ":nine:";  break;
-        case 10 : return "🔟";  break;
-      }
-    }
-  
-    function rank_renew()
-    {
-      embed = new Discord.RichEmbed();
-      let str_rank = ""
-      let rank_array = (Object.keys(duellist)).sort(function(a, b){return duellist[b].elo - duellist[a].elo})
-      let num_rank = 1;
-      for(i = 0 ; i < rank_array.length && num_rank <= 10 ; i++)
-      {
-        let person = message.guild.members.get(rank_array[i])
-        if(duellist[rank_array[i]].win + duellist[rank_array[i]].lose <= 0) continue;
-        else
-        {
-          let name = `**${person.displayName}**`
-          str_rank += show_rank(num_rank) + "　" + name + "　積分：" + duellist[rank_array[i]].elo + "\n"
-          num_rank ++
-        }
-      }
-      embed.setTitle("競技場排名").setColor("#7ff396").setDescription(str_rank);
-      return embed
-    }
-    function tower_renew()
-    {
-      embed = new Discord.RichEmbed();
-      let str_rank = ""
-      let rank_array = (Object.keys(duellist)).sort(function(a, b){return duellist[b].tower - duellist[a].tower})
-      for(i = 0 ; i < 10 ; i++)
-      {
-        let person = message.guild.members.get(rank_array[i])
-        let name = duellist[rank_array[i]].tower > 1 ? `**${person.displayName}**` : "-" 
-        str_rank += show_rank(i+1) + "　" + `**${person.displayName}**` + "　層數：" + duellist[rank_array[i]].tower + "\n"
-      }
-      embed.setTitle("PVE排名").setColor("#da507e").setDescription(str_rank);
-      return embed
-    }
-    
-    var ch = message.guild.channels.get("629230265260048414");
-    ch.fetchMessage("629230370512044037").then( msg => msg.edit(rank_renew()) ) 
-    ch.fetchMessage("629230359153868800").then( msg => msg.edit(tower_renew()) )
     return;
 }
 
 module.exports.help = {
-    name: "duel"
+    name: "duelt"
 }

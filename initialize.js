@@ -25,6 +25,8 @@ const maridata = require("./maridata.json");
 const stars = require("./stars.json");
 const vlkys = require("./vlkys.json");
 const coplayer = require("./coplayer.json");
+const duellist = require("./duellist.json");
+const duelcount = require("./duelcount.json");
 
 
 module.exports.run = async(bot, message, args) =>{
@@ -142,15 +144,19 @@ module.exports.run = async(bot, message, args) =>{
   if(!stars[id]) {stars[id] = {stars:0} };
   fs.writeFileSync("./stars.json",JSON.stringify(stars)); 
   
-  if(!vlkys[id])  vlkys[id] = {vlkys : {"B0":1}, status: {"now":"B0" ,"lv":1, "exp":0}, rank:{ "B0":"B" }}; 
+  if(!vlkys[id])  vlkys[id] = {vlkys : {"B0":1}, status: {"lv":1, "exp":0}, rank:{ "B0":"B" }, set1:[0,0], set2:[0,0], set3:[0,0], favor:{"B0":0}, marry:{"B0":0}}
   fs.writeFileSync("./vlkys.json",JSON.stringify(vlkys)); 
   
   if(!(id in coplayer)) coplayer[id] = {own:[], shares:{}, history:[]};
   fs.writeFileSync("./coplayer.json",JSON.stringify(coplayer)); 
+  
+  if(!duellist[id]) duellist[id] = {now:0, win:0, lose:0, elo:1000, tower:1}
+  fs.writeFileSync("./duellist.json",JSON.stringify(duellist));
+  
+  if(!duelcount[id]) duelcount[id] = {pve:3, pvp:3}
+  fs.writeFileSync("./duelcount.json",JSON.stringify(duelcount));
+  
   return;
-  
-  
-  
 }
 
 module.exports.help = {

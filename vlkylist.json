@@ -4,8 +4,8 @@
      "name": "B0-休伯利安清潔工",
      "atk": 5,
      "cri": 0.5,
-     "hp": 10,
-     "def": 1,
+     "hp": 30,
+     "def": 2,
      "agi": 1,
      "srank" : "B",
     "img":"https://i.imgur.com/n5Tb387.jpg"
