@@ -23,15 +23,15 @@ module.exports.run = async(bot, message, args) =>{
         if(num <= 0) return message.channel.send("請輸入正整數。");
       
        for(var person of Object.keys(stars)) 
-      {
-        let ranking = message.guild.roles.find(x => x.name == "LV.20 女武神．強襲").position;
-        var man = message.guild.members.get(person);
-        if(man){ let role = man.hoistRole;
-        if(role) 
-        {
-          if(role.position >= ranking) stars[person].stars = stars[person].stars + num;                
-        }}
-      }
+       {
+         let ranking = message.guild.roles.find(x => x.name == "LV.20 女武神．強襲").position;
+         var man = message.guild.members.get(person);
+         if(man){ let role = man.hoistRole;
+         if(role) 
+         {
+           if(role.position >= ranking) stars[person].stars = stars[person].stars + num;                
+         }}
+       }
       
       fs.writeFileSync("./stars.json",JSON.stringify(stars));
       

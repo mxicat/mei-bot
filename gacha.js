@@ -76,7 +76,6 @@ module.exports.run = async(bot, message, args) =>{
       return;
     }
       
-    if(!vlkys[id])  vlkys[id] = {vlkys : {"B0":1}, status: {"now":"B0" ,"lv":1, "exp":0}, rank:{ "B0":"B" }};  // initialize user vlky
     if(!gachalist[id]) gachalist[id] = { free : true, list: ary };
       
     if(!crystals[id]){

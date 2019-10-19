@@ -12,6 +12,10 @@ const vlkys = require("./vlkys.json");
 const stars = require("./stars.json");
 const gachalist = require("./gachalist.json");
 const co_timer = require("./co_timer.json");
+const coinlist = require("./coinlist.json");
+const duellist = require("./duellist.json");
+const duelcount = require("./duelcount.json");
+const exchangelist = require("./exchangelist.json");
 
 String.prototype.len = function()
 { return this.replace(/[^\x00-\xff]/g,"rr").length; }
@@ -22,13 +26,14 @@ module.exports.run = async(bot, message, args) => {
     var id = message.author.id;
     let man = message.guild.members.get(id);
     //if(message.channel.id != "436575279402450967" && message.guild.members.get(id).roles.find(x => x.name == "GM") == null) return message.channel.send("維護中，需要**GM**權限");
-    if((!message.channel.name.includes("股票指令")) && message.channel.id != "453960579065970709" && message.channel.id != "436575279402450967") return message.reply("請至股票分類頻道使用。");
+    if((!message.channel.name.includes("新指令")) && message.channel.id != "453960579065970709" && message.channel.id != "436575279402450967") return message.reply("請至股票分類頻道使用。");
   
     let ranking = message.guild.roles.find(role => role.name == "LV.20 女武神．強襲").position;
     if(man.hoistRole.position < ranking) return message.reply("限制功能：水文等級20以上開放");
     if(man.roles.find(role => role.name == "bot") != null) return message.reply("機器人別鬧。");
 
     let now = new Date();
+    let today = now.getDate();
     now = new Date(now.getTime() + 8*60*60*1000);
     var embed = new Discord.RichEmbed();
     var i = 0 
@@ -114,11 +119,14 @@ module.exports.run = async(bot, message, args) => {
       }
       else
       {
+        total = 0
+        for(i of Object.keys(corp.sharelist)) total += corp.sharelist[i]
         embed = new Discord.RichEmbed();
         string = "";
         embed.setColor("#53e119").setTitle("公司："+ vlkylist[type].name)
         embed.addField("經理人",message.guild.members.get(corp.owner).displayName,true)
         embed.addField("參考市價",corp.price,true)
+        embed.addField("總釋股數",total,true)
         embed.addField("日成交量",corp.volume,true)
         embed.addField("資本額",corp.funds,true)
         embed.addField("剩餘分紅",corp.bonus,true)
@@ -285,11 +293,38 @@ module.exports.run = async(bot, message, args) => {
             }
             for(i of Object.keys(stars))
             {
-              stars[i].stars = 5000;
+              stars[i].stars = 100;
             }
+            for(i of Object.keys(coinlist))
+            {
+              items[i].items["006"] = coinlist[i].now - 1;
+            }
+            for(i of Object.keys(vlkys))
+            {
+              vlkys[i] = {vlkys : {"B0":1}, status: {"lv":1, "exp":0}, rank:{ "B0":"B" }, set1:[0,0], set2:[0,0], set3:[0,0], favor:{"B0":0}, marry:{"B0":0}}
+            }
+            for(i of Object.keys(duellist))
+            {
+              duellist[i] = {now:0, win:0, lose:0, elo:1000, tower:1}            
+            }
+            for(i of Object.keys(duelcount))
+            {
+              duelcount[i] = {pve:3, pvp:3}  
+              if(crystals[i].Time != today) duelcount[i].pvp = 0;  // 未簽到者
+            }
+            for(i of Object.keys(exchangelist))
+            {
+              exchangelist[i] = {stars:0} 
+            }
+          
+            fs.writeFileSync("./duellist.json",JSON.stringify(duellist));
+            fs.writeFileSync("./exchangelist.json",JSON.stringify(exchangelist));
+            fs.writeFileSync("./duelcount.json",JSON.stringify(duelcount));
             fs.writeFileSync("./colist.json",JSON.stringify(colist));
             fs.writeFileSync("./coplayer.json",JSON.stringify(coplayer));
             fs.writeFileSync("./stars.json",JSON.stringify(stars));
+            fs.writeFileSync("./items.json",JSON.stringify(items));
+            fs.writeFileSync("./vlkys.json",JSON.stringify(vlkys));
             return message.reply("reset");
             break;
          
@@ -483,6 +518,12 @@ module.exports.run = async(bot, message, args) => {
             if(!Number.isInteger(num)) return message.reply("請輸入正確整數。");
             if(num < 0) return message.reply("請輸入正整數。");
             if(stars[id].stars < num*price) return message.reply("星石數量不足。")
+            /*total = 0;
+            for(i of Object.keys(corp.sharelist))
+            {
+              total += corp.sharelist[i]
+            }
+            if(num > total) return message.reply("委託數量上限為公司總釋股數 (" + total + ")。")*/
             
             bo = 0;
             if(!(id in corp.sharelist)) corp.sharelist[id] = 0;
@@ -510,7 +551,14 @@ module.exports.run = async(bot, message, args) => {
               len = corp.sell.length;
               for(i = 0 ; i < len ; i++)
               {
-                if(corp.sell[i].price <= bo.price)
+                if(corp.sell[i].num == 0) 
+                  {
+                    (corp.sell).splice(corp.sell.findIndex(so => so.owner == corp.sell[i].owner),1);
+                    i--;
+                    len = corp.sell.length;
+                    continue
+                  }
+                if(corp.sell[i].price <= bo.price && corp.sell[i].owner != bo.owner )
                 {
                   num = corp.sell[i].num < bo.num ? corp.sell[i].num : bo.num;
                   
@@ -525,8 +573,11 @@ module.exports.run = async(bot, message, args) => {
                   corp.price_history.push("$" + corp.price + "　　"  + time(bo.time));
                   corp.volume += num;
                   coplayer[bo.owner].history.push("以單價 " + corp.sell[i].price + " 星石買入 " + type + " 公司 " + num + " 股   " + time(bo.time));
-                  coplayer[corp.sell[i].owner].history.push("以單價 " + corp.sell[i].price + " 星石賣出 " + type + " 公司 " + num + " 股   " + time(bo.time));
-                  coplayer[corp.sell[i].owner].shares[type] = corp.sharelist[corp.sell[i].owner];
+                  if(corp.sell[i].owner != "433287968292339722")
+                  {
+                    coplayer[corp.sell[i].owner].history.push("以單價 " + corp.sell[i].price + " 星石賣出 " + type + " 公司 " + num + " 股   " + time(bo.time));
+                    coplayer[corp.sell[i].owner].shares[type] = corp.sharelist[corp.sell[i].owner];
+                  }
                   if(corp.sell[i].num == 0) 
                   {
                     (corp.sell).splice(corp.sell.findIndex(so => so.owner == corp.sell[i].owner),1);
@@ -592,7 +643,7 @@ module.exports.run = async(bot, message, args) => {
               len = corp.buy.length;
               for(i = 0 ; i < len ; i++)
               {
-                if(corp.buy[i].price >= so.price)
+                if(corp.buy[i].price >= so.price && corp.buy[i].owner != so.owner)
                 {
                   num = so.num < corp.buy[i].num ? so.num : corp.buy[i].num;
                   
@@ -730,11 +781,15 @@ module.exports.run = async(bot, message, args) => {
             }
             else
             {
+              total = 0
+              for(i of Object.keys(corp.sharelist)) total += corp.sharelist[i]
+                
               embed = new Discord.RichEmbed();
               string = "";
               embed.setColor("#53e119").setTitle("公司："+ vlkylist[type].name)
               embed.addField("經理人",message.guild.members.get(corp.owner).displayName,true)
               embed.addField("參考市價",corp.price,true)
+              embed.addField("總釋股數",total,true)
               embed.addField("日成交量",corp.volume,true)
               embed.addField("資本額",corp.funds,true)
               embed.addField("剩餘分紅",corp.bonus,true)
