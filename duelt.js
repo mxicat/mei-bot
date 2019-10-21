@@ -144,12 +144,12 @@ module.exports.run = async(bot, message, args) =>{
       player.lv = vlkys[id].status.lv;
       player.type = type;
       if(vlkys[id].rank[type] == "B") mp = 0.65
-      if(vlkys[id].rank[type] == "A") mp = 0.8
-      if(vlkys[id].rank[type] == "S") mp = 0.95
-      if(vlkys[id].rank[type] == "SS") mp = 1.1
-      if(vlkys[id].rank[type] == "SSS") mp = 1.25
-      if(vlkys[id].rank[type] == "EX") mp = 1.4
-      else mp = 1.4;
+      else if(vlkys[id].rank[type] == "A") mp = 0.8
+      else if(vlkys[id].rank[type] == "S") mp = 0.95
+      else if(vlkys[id].rank[type] == "SS") mp = 1.1
+      else if(vlkys[id].rank[type] == "SSS") mp = 1.25
+      else if(vlkys[id].rank[type] == "EX") mp = 1.4
+      else mp = 1.1;
       
       player.sp = 0;
       player.sp_up = 1;

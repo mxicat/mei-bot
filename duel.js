@@ -160,10 +160,10 @@ module.exports.run = async(bot, message, args) =>{
       return;
     }
   
-    var player = function(id,type,position) 
+    var player = function(uid,type,position) 
     {
       var player = {};
-      player.id = id;
+      player.id = uid;
       //player.name = vlkylist[type].name.slice(3)
       let emo = "";
       switch(type)
@@ -205,17 +205,18 @@ module.exports.run = async(bot, message, args) =>{
       else if(position == "op2") player.aibo = "op1";
       player.aibo_obj = 0;
       
-      player.lv = vlkys[id].status.lv;
+      player.lv = vlkys[uid].status.lv;
       player.type = type;
-      if(vlkys[id].rank[type] == "B") mp = 0.65
-      if(vlkys[id].rank[type] == "A") mp = 0.8
-      if(vlkys[id].rank[type] == "S") mp = 0.95
-      if(vlkys[id].rank[type] == "SS") mp = 1.1
-      if(vlkys[id].rank[type] == "SSS") mp = 1.25
-      if(vlkys[id].rank[type] == "EX") mp = 1.4
-      else mp = 1.4;
+      if(vlkys[uid].rank[type] == "B") mp = 0.65
+      else if(vlkys[uid].rank[type] == "A") mp = 0.8
+      else if(vlkys[uid].rank[type] == "S") mp = 0.95
+      else if(vlkys[uid].rank[type] == "SS") mp = 1.1
+      else if(vlkys[uid].rank[type] == "SSS") mp = 1.25
+      else if(vlkys[uid].rank[type] == "EX") mp = 1.4
+      else mp = 1.1;
+      
       let ml = 1
-      if(vlkys[id].favor[type]) ml += (vlkys[id].favor[type]/10000)/10  // 好感度補償
+      if(vlkys[uid].favor[type]) ml += (vlkys[uid].favor[type]/10000)/10  // 好感度補償
       if(ml > 1.1) ml = 1.1
       //if(vlkys[id].marry[type] == 1) ml += 0.05;
       mp *= ml

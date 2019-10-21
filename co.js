@@ -354,6 +354,9 @@ module.exports.run = async(bot, message, args) => {
             if(!(vlkylist[type])) return message.reply("無效的公司編號。")
             if(!colist[type].enable) return message.reply("未啟用的公司編號。");
             if(colist[type].now == 1) return message.reply("為新創公司。");
+            if(!co_timer.pcd) co_timer.pcd = {"B0":0};
+            if(!(type in co_timer.pcd)) co_timer.pcd[type] = 0;
+            if(co_timer.pcd[type] == 1) return message.reply("更改每日限一次。");
             corp = colist[type];
             if(corp.owner != id) return message.reply("須為公司經理人。");
             
@@ -366,6 +369,8 @@ module.exports.run = async(bot, message, args) => {
             corp.pricef = price;
             fs.writeFileSync("./colist.json",JSON.stringify(colist));
             banner_renew(type)
+            co_timer.pcd[type] = 1;
+            fs.writeFileSync("./co_timer.json",JSON.stringify(co_timer));
             return message.reply("碎片價格已設置為：" + price);
             break;
             
