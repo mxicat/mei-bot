@@ -114,6 +114,7 @@ module.exports.run = async(bot, message, args) =>{
       fs.writeFileSync("./crystals.json",JSON.stringify(crystals));
       
       let ranking = message.guild.roles.find(role => role.name === "LV.20 女武神．強襲").position;
+      if(!man.hoistRole) return message.channel.send(embed);
       if(man.hoistRole.position < ranking) return message.channel.send(embed);
       if(coinlist[id].ltd >= 2500) return message.channel.send(embed);
       if(coinlist[id].now >= 99) return message.channel.send(embed);

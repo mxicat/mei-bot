@@ -249,15 +249,15 @@ module.exports.run = async(bot, message, args) =>{
            {
              if(corp.sharelist[person] > 0 && Number.isInteger(corp.sharelist[person])) total += corp.sharelist[person];
            }
-           if(corp.funds >= total*10)
+           if(corp.bonus >= total*10)
            {
-             num = Math.floor(corp.funds/total);
+             num = Math.floor(corp.bonus/total);
              for(person of Object.keys(corp.sharelist))
              {
                if(corp.sharelist[person] > 0 && Number.isInteger(corp.sharelist[person])) 
                {
                  stars[person].stars += corp.sharelist[person]*num;
-                 corp.funds -= corp.sharelist[person]*num;
+                 corp.bonus -= corp.sharelist[person]*num;
                }
              }
              channel = message.guild.channels.get("621999946429628416");
@@ -266,8 +266,53 @@ module.exports.run = async(bot, message, args) =>{
          }
         banner_renew(type);
       }
+      
+     
+      let rank_array = (Object.keys(duellist)).sort(function(a, b){return duellist[b].elo - duellist[a].elo})
+      let num_rank = 1;
+      for(i = 0 ; i < rank_array.length && num_rank <= 10 ; i++)
+      {
+        let person = message.guild.members.get(rank_array[i])
+        if(duellist[rank_array[i]].win + duellist[rank_array[i]].lose <= 0) continue;
+        else
+        {
+          let x = 0
+          if(num_rank == 1) x = 10
+          else if(num_rank == 2) x = 9
+          else if(num_rank == 3) x = 8
+          else if(num_rank <= 5) x = 7
+          else if(num_rank <= 10) x = 5
+          else x = 0
+          
+          if(num_rank <= 10)
+          {
+            var ranking = 1;
+            var mp = 0;
+            for(var type of Object.keys(vlkys[rank_array[i]].rank))
+            {
+              if(type.startsWith("S")) mp = 3;
+              else mp = 1;
+              if(vlkys[rank_array[i]].rank[type] == "A") ranking += 1*mp;
+              else if(vlkys[rank_array[i]].rank[type] == "S") ranking += 3*mp;
+              else if(vlkys[rank_array[i]].rank[type] == "SS") ranking += 6*mp;
+              else if(vlkys[rank_array[i]].rank[type] == "SSS") ranking += 10*mp;
+              else if(vlkys[rank_array[i]].rank[type] == "EX") ranking += 16*mp;
+            }
+            stars[rank_array[i]].stars += ranking * x
+            channel = message.guild.channels.get("621999946429628416");
+            channel.send(person.displayName +" 獲得結算星石： " + ranking * x);
+          }
+          duellist[rank_array[i]].win = 0
+          duellist[rank_array[i]].lose = 0
+          duellist[rank_array[i]].elo = 1000
+          duelcount[rank_array[i]].history = [];
+          num_rank ++
+        }
+      }
       co_timer.weekday = now.getDate();
       fs.writeFileSync("./colist.json",JSON.stringify(colist));
+      fs.writeFileSync("./duellist.json",JSON.stringify(duellist));
+      fs.writeFileSync("./duelcount.json",JSON.stringify(duelcount));
       fs.writeFileSync("./stars.json",JSON.stringify(stars));
       fs.writeFileSync("./co_timer.json",JSON.stringify(co_timer));
       return;
@@ -328,6 +373,11 @@ module.exports.run = async(bot, message, args) =>{
         duelcount[person].pve = 3;
       }
       fs.writeFileSync("./duelcount.json",JSON.stringify(duelcount));
+      
+      for(var t of Object.keys(co_timer.pcd))  //重置碎片價格設定CD
+      {
+        co_timer.pcd[t] = 0;
+      }
       
       co_timer.date = now.getDate();
       fs.writeFileSync("./colist.json",JSON.stringify(colist));

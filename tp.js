@@ -44,7 +44,7 @@ module.exports.run = async(bot, message, args) =>{
           .setTitle("艦團水晶獎勵")
           .addField("戰場獎勵","戰場總分/100 (最低70000)")
           .addField("矩陣獎勵","探索值/10 (最低500)")
-          .addField("入侵獎勵","入侵傷害前五名者每人 50 水晶")
+          .addField("入侵獎勵","入侵傷害前五名者每人 200 水晶")
           return message.channel.send(embed);
           break;
         
@@ -152,7 +152,7 @@ module.exports.run = async(bot, message, args) =>{
         
          case "iv":
            if(num > 5) return message.reply("名次未達獎勵門檻，請再加油。");
-           let ivre = 50;    
+           let ivre = 200;    
            tplist[now] = { enable: 1, reward: ivre , member:[] };
            tplist[now].member[0] = id;
            tplist["status"].now += 1;
