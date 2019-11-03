@@ -256,7 +256,7 @@ module.exports.run = async(bot, message, args) =>{
             //if(vlkys[id].marry[v_type] == 1) str = "💍"
             return str;
           }
-          embed.addField("好感度",show_heart(id,type))
+          embed.addField("好感度：" + vlkys[id].favor[type],show_heart(id,type))
           return message.channel.send(embed);
          }
          else return message.channel.send("未知的女武神編號。")

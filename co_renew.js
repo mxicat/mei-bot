@@ -340,13 +340,13 @@ module.exports.run = async(bot, message, args) =>{
            total = 0;                                 // 好感度提升
            for( i of Object.keys(corp.sharelist))
            {
-             total += corp.sharelist[i]
+             if(corp.sharelist[i]) total += corp.sharelist[i]
            }
            for( person of Object.keys(vlkys))
            {
              if(!vlkys[person].favor) vlkys[person].favor = {"B0":0}
              if(!vlkys[person].favor[corp.type]) vlkys[person].favor[corp.type] = 0
-             vlkys[person].favor[corp.type] += Math.ceil(corp.sharelist[person]/total)
+             vlkys[person].favor[corp.type] += Math.ceil(corp.sharelist[person]/total*100)
            }
            
            
