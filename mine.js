@@ -82,8 +82,6 @@ module.exports.run = async(bot, message, args) =>{
         fs.writeFileSync("./items.json",JSON.stringify(items));
       }
       
-      
-      
       let cc = (rand/50) + rr;
       if( cc > 20) cc = 20;
       crystals[id].crystals += Math.floor(num*cc);
@@ -91,8 +89,6 @@ module.exports.run = async(bot, message, args) =>{
       
       lvup(id,Math.floor(num/5 * (cc)));
       embed.addField("武器提升","你獲得了 " + Math.floor(num/5 * (cc)) + " 武器經驗");
-      
-    
       
       let crime_rand = Math.floor(Math.random()*10000 + 1);
       let crime_num = num;

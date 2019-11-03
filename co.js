@@ -466,7 +466,6 @@ module.exports.run = async(bot, message, args) => {
             num = Math.floor(parseInt(args[4]));
             if(!Number.isInteger(num)) return message.reply("請輸入正確整數。");
             if(num < 0) return message.reply("請輸入正整數。");
-            if(stars[id].stars < num*price) return message.reply("星石數量不足。")
             
             bo = 0;
             if(!(type in vlkys[id].vlkys))
@@ -485,6 +484,7 @@ module.exports.run = async(bot, message, args) => {
             }
             if(num != 0)
             {
+              if(stars[id].stars < num*price) return message.reply("星石數量不足。")
               stars[id].stars -= num*price;
               stars[id].stars -= Math.floor(num*price/1000) > 0 ? Math.floor(num*price/1000) : 1
               bo = 
@@ -522,7 +522,6 @@ module.exports.run = async(bot, message, args) => {
             num = Math.floor(parseInt(args[4]));
             if(!Number.isInteger(num)) return message.reply("請輸入正確整數。");
             if(num < 0) return message.reply("請輸入正整數。");
-            if(stars[id].stars < num*price) return message.reply("星石數量不足。")
             /*total = 0;
             for(i of Object.keys(corp.sharelist))
             {
@@ -544,6 +543,7 @@ module.exports.run = async(bot, message, args) => {
             }
             if(num != 0)
             {
+              if(stars[id].stars < num*price) return message.reply("星石數量不足。")
               stars[id].stars -= num*price;
               stars[id].stars -= Math.floor(num*price/1000) > 0 ? Math.floor(num*price/1000) : 1
               bo = 

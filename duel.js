@@ -139,6 +139,7 @@ module.exports.run = async(bot, message, args) =>{
   
     function explist(lv)  // required exp for lv up
     {
+      if(lv >= 100) return "∞"
       return lv*lv*lv + 100*lv - 50
     }
    
@@ -149,6 +150,7 @@ module.exports.run = async(bot, message, args) =>{
     
     function lvup(id,exp)
     {
+      if(vlkys[id].status.lv >= 100) return;
       vlkys[id].status.exp += exp;
       while( vlkys[id].status.exp >= explist(vlkys[id].status.lv))
       {
@@ -467,6 +469,7 @@ module.exports.run = async(bot, message, args) =>{
               else 
               {
                 record += dis_player(player) + " 防禦姿態解除" + "\n"
+                player.defense = 0;
                 player.attack(target, 1, "普攻", "normal");
                 player.sp_gain(1);
               }  
@@ -1203,8 +1206,6 @@ module.exports.run = async(bot, message, args) =>{
       if(state == "win")
       {
         num = Math.floor(14*Math.exp(-0.004*(p_elo-op_elo)))
-        let dif = vlkys[id].status.lv - vlkys[opid].status.lv
-        if(dif > 0) num -= Math.ceil((num/10)*dif)
         if(num < 1) num = 1;
         if(num > 50) num = 50;
       }

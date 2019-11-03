@@ -397,6 +397,7 @@ module.exports.run = async(bot, message, args) =>{
               else 
               {
                 record += dis_player(player) + " 防禦姿態解除" + "\n"
+                player.defense = 0;
                 player.attack(target, 1, "普攻", "normal");
                 player.sp_gain(1);
               }  
