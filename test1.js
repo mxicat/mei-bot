@@ -40,15 +40,7 @@ module.exports.run = async (bot, message, args) => {
 
   //coplayer[id] = { own: 0, shares: {}, history: [] };
   //duelcount[id].pvp = 3
-  for( var person of Object.keys(vlkys))
-           {
-             for(var i of Object.keys(vlkylist))
-               {
-                 vlkys[person].favor[i] = 0
-               }
-             
-           }
-  fs.writeFileSync("./vlkys.json", JSON.stringify(vlkys));
+ message.reply("<:space:657280156204924948>")
 
   return;
 };

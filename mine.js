@@ -113,7 +113,7 @@ module.exports.run = async(bot, message, args) =>{
       if(!man.hoistRole) return message.channel.send(embed);
       if(man.hoistRole.position < ranking) return message.channel.send(embed);
       if(coinlist[id].ltd >= 2500) return message.channel.send(embed);
-      if(coinlist[id].now >= 99) return message.channel.send(embed);
+      if(coinlist[id].now > 99) return message.channel.send(embed);
       let mulp = coinlist[id].now*coinlist[id].now;
       if (mulp > 5000) mulp = 5000;
       let coin_rand = Math.floor(Math.random()*100*mulp + 1)

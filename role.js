@@ -55,6 +55,16 @@ module.exports.run = async(bot, message, args) =>{
           .setTitle(rr.name)
           return message.channel.send(embed);
           break;
+        
+        case "delete":
+          if(!rolelist[id].role) return message.reply("尚未購買專屬身分組。");
+           let rr1 = message.guild.roles.find(role => role.name == args[2]);
+           if(!rr1) return message.reply("名稱有誤。")
+          let d_id = Object.keys(rolelist).find(id => rolelist[id].role === rr1.id);
+          rolelist[d_id].role = 0
+          rr1.delete()
+          return message.channel.send("身分組已刪除。");
+          break;
     
         case "buy":
           if(crystals[id].crystals < 3000) return message.reply("<:crystal:431483260468592641>不足。");

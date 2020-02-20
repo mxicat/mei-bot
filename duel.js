@@ -58,7 +58,10 @@ module.exports.run = async(bot, message, args) =>{
         for(i = 0 ; i < array.length ; i++)
         {
           let p = message.guild.members.get(array[i])
-          str += show_rank(i+1) + "　" + p.displayName + "　等級：" + vlkys[array[i]].status.lv + "　積分：" + duellist[array[i]].elo + "\n" 
+          let p_name = ""
+          if(p) p_name = p.displayName
+          else p_name = "查無此人"
+          str += show_rank(i+1) + "　" + p_name + "　等級：" + vlkys[array[i]].status.lv + "　積分：" + duellist[array[i]].elo + "\n" 
         }
         em.setDescription(str);
         return em;
@@ -1048,8 +1051,8 @@ module.exports.run = async(bot, message, args) =>{
       embed.setTitle("Lv."+p1.lv+" "+man.displayName+" V.S. "+"Lv."+op1.lv+" "+ opponent.displayName).setColor("#00c5a3");
       embed.addField(dis_player(p1)+show_rank(p1)+show_status(p1), Math.ceil(show_hp(p1))+"/"+Math.ceil(p1.maxhp)+" "+ show_heart(p1) + "\n"+Math.floor(show_sp(p1))+"/"+Math.floor(op2.maxsp) +" "+ show_star(p1),true)
            .addField(dis_player(p2)+show_rank(p2)+show_status(p2), Math.ceil(show_hp(p2))+"/"+Math.ceil(p2.maxhp)+" "+ show_heart(p2) +"\n"+Math.floor(show_sp(p2))+"/"+Math.floor(op2.maxsp)+" "+ show_star(p2),true)
-           .addField(dis_player(op1)+show_rank(op1)+show_status(op1), Math.ceil(show_hp(op1))+"/"+Math.ceil(op1.maxhp)+" "+ show_heart(op1) +"\n"+Math.floor(show_sp(op1))+"/"+Math.floor(op2.maxsp)+" "+ show_star(op1),true)
-           .addField(dis_player(op2)+show_rank(op2)+show_status(op2), Math.ceil(show_hp(op2))+"/"+Math.ceil(op2.maxhp)+" "+ show_heart(op2) +"\n"+Math.floor(show_sp(op2))+"/"+Math.floor(op2.maxsp)+" "+ show_star(op2),true)
+           .addField(dis_player(op1)+show_rank(op1)+show_status(op1), Math.ceil(show_hp(op1))+"/"+Math.ceil(op1.maxhp)+" "+ show_heart(op1) +"\n"+Math.floor(show_sp(op1))+"/"+Math.floor(op2.maxsp)+" "+ show_star(op1))
+           .addField(dis_player(op2)+show_rank(op2)+show_status(op2), Math.ceil(show_hp(op2))+"/"+Math.ceil(op2.maxhp)+" "+ show_heart(op2) +"\n"+Math.floor(show_sp(op2))+"/"+Math.floor(op2.maxsp)+" "+ show_star(op2))
       embed.setDescription(record)
       return embed;
     }
@@ -1267,7 +1270,7 @@ module.exports.run = async(bot, message, args) =>{
         duelcount[opid].match.history.push("🛡 " + man.displayName + " 🌶🐔" + duellist[opid].elo +` (🔻${num+1})`)
         array_ten(duelcount[id].match.history)
         array_ten(duelcount[opid].match.history)
-        embed1.addField(find_rank(id) + man.displayName,duellist[id].elo + ` (🔺${num})`,true)
+        embed1.addField(find_rank(id) + man.displayName,duellist[id].elo + ` (🔺${num})`)
         embed1.addField(find_rank(opid) + opponent.displayName,duellist[opid].elo + ` (🔻${num + 1})`,true)
       }
       else
@@ -1278,7 +1281,7 @@ module.exports.run = async(bot, message, args) =>{
         lvup(id,exp)
         stars[id].stars += duellist[id].tower*8
         duellist[id].tower++
-        embed1.addField(man.displayName + " - 女武神等級",`LV.${vlkys[id].status.lv} (${vlkys[id].status.exp}/${explist(vlkys[id].status.lv)})` + show_exp(),true)
+        embed1.addField(man.displayName + " - 女武神等級",`LV.${vlkys[id].status.lv} (${vlkys[id].status.exp}/${explist(vlkys[id].status.lv)})` + show_exp())
       }
       msg.edit(embed1);
     }
@@ -1298,7 +1301,7 @@ module.exports.run = async(bot, message, args) =>{
          array_ten(duelcount[id].match.history)
          array_ten(duelcount[opid].match.history)
          embed1 = embed_renew();
-         embed1.addField(find_rank(id) + man.displayName,duellist[id].elo + ` (🔻${num + 1})`,true)
+         embed1.addField(find_rank(id) + man.displayName,duellist[id].elo + ` (🔻${num + 1})`)
          embed1.addField(find_rank(opid) + opponent.displayName,duellist[opid].elo + ` (🔺${num})`,true)
        }
        else
@@ -1307,7 +1310,7 @@ module.exports.run = async(bot, message, args) =>{
           record += "🏹 " + man.displayName + " 獲得了" + `**${exp}**` + " 點經驗\n"
           embed1 = embed_renew();
           lvup(id,exp)
-          embed1.addField(man.displayName + " - 女武神等級",`LV.${vlkys[id].status.lv} (${vlkys[id].status.exp}/${explist(vlkys[id].status.lv)})` + show_exp(),true)
+          embed1.addField(man.displayName + " - 女武神等級",`LV.${vlkys[id].status.lv} (${vlkys[id].status.exp}/${explist(vlkys[id].status.lv)})` + show_exp())
        }
        msg.edit(embed1);
     }
@@ -1318,7 +1321,7 @@ module.exports.run = async(bot, message, args) =>{
        if(args[1] != "pve")
        {
          embed1 = embed_renew();
-         embed1.addField(man.displayName,duellist[id].elo,true)
+         embed1.addField(man.displayName,duellist[id].elo)
          embed1.addField(opponent.displayName,duellist[opid].elo,true)
          
        }
@@ -1379,8 +1382,11 @@ module.exports.run = async(bot, message, args) =>{
       for(i = 0 ; i < 10 ; i++)
       {
         let person = message.guild.members.get(rank_array[i])
-        let name = duellist[rank_array[i]].tower > 1 ? `**${person.displayName}**` : "-" 
-        str_rank += show_rank(i+1) + "　" + `**${person.displayName}**` + "　層數：" + duellist[rank_array[i]].tower + "\n"
+        let d_name = "";
+        if(person) d_name = person.displayName
+        else d_name = "查無此人"
+        let name = duellist[rank_array[i]].tower > 1 ? `**${d_name}**` : "-" 
+        str_rank += show_rank(i+1) + "　" + `**${d_name}**` + "　層數：" + duellist[rank_array[i]].tower + "\n"
       }
       embed.setTitle("PVE排名").setColor("#da507e").setDescription(str_rank);
       return embed

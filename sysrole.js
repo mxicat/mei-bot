@@ -27,6 +27,7 @@ module.exports.run = async(bot, message, args) =>{
       .setTitle("系統身分組商店")
       .addField("sysrole info","查看身分組資訊")
       .addField("sysrole buy 表符","購買系統身分組")
+      .addField("sysrole remove 表符","移除系統身分組")
       .setThumbnail("https://i.imgur.com/guTJB7T.png")
       .setURL("https://mei-1.gitbook.io/workspace/si-fu-qi-gong-neng/sysrole")
       return message.channel.send(embed);
@@ -54,12 +55,64 @@ module.exports.run = async(bot, message, args) =>{
         return message.channel.send(embed);
           return message.channel.send(embed);
           break;
+          
+        case "remove":
+          if(!args[2]) return message.channel.send("請輸入欲移除的身分組代表之表情符號。");
+          switch(args[2])
+          {
+              case "<:crystal:431483260468592641>":
+                man.removeRole("414673014030860288");
+              break;        
+              
+              case "<:nuwa1:592343029369798660>":
+                man.removeRole("433267647120146432");
+              break;         
+              
+              case "<:eevee:472077794398961684>":
+                man.removeRole("434704579351805952");
+              break;         
+              
+              case "<:yuno:588359925084979211>":
+                man.removeRole("432767419782660096");
+              break;         
+              
+              case "<:ysy7:420984553138814986>":
+                man.removeRole("434214765070516235");
+              break;         
+              
+              case "<:bya:378080241576574977>":
+                man.removeRole("432782514789154817");
+              break;         
+              
+              case "<:aichan:438006259678052373>":
+                man.removeRole("432786685609377792");
+              break;         
+              
+              case "<:teriteri:569019032364384256>":
+                man.removeRole("589124226498297896");
+              break;      
+              
+              case "<:fuka2:589314493226680321>":
+                man.removeRole("589125072686678016");
+              break;    
+              
+              case "<:hmk2:586486129474273280>":
+                man.removeRole("589124816951574539");
+              break;    
+              
+              case "<:bya2:586481143000334336>":
+                man.removeRole("624566221261504523");
+                break;
+              default :
+                return message.reply("請輸入欲購買的身分組代表之表情符號。");
+              break;
+          }
+          return message.reply("身分組已移除")
+          break;
     
         case "buy":
           
           if(!args[2]) return message.channel.send("請輸入欲購買的身分組代表之表情符號。");
-          let guild = message.guild;
-          let roles = message.guild.roles;
           switch(args[2])
           {
               case "<:crystal:431483260468592641>":
@@ -154,6 +207,7 @@ module.exports.run = async(bot, message, args) =>{
                 return message.reply("請輸入欲購買的身分組代表之表情符號。");
               break;  
           }
+          break;
           
           
       }
