@@ -27,7 +27,7 @@ module.exports.run = async(bot, message, args) =>{
     var hat = new Set();
   
     const en_str = "abcdefghi";
-    const empty_str = "         ";
+    const empty_str = "<:space:657280156204924948>";
     var betnum = 0;
     var newstr = "";
     var n = 0;

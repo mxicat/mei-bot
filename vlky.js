@@ -183,8 +183,9 @@ module.exports.run = async(bot, message, args) =>{
            {
              type = args[2]
              for(var member of Object.keys(vlkys))
-             {
+             { 
                if(! (type in vlkys[member].favor)) vlkys[member].favor[type] = 0
+               if(!vlkys[member].favor[type]) vlkys[member].favor[type] = 0
              }
              var rank_array = Object.keys(vlkys).sort(function(a,b){ return vlkys[b].favor[type] - vlkys[a].favor[type]})
              var str = ""
@@ -207,7 +208,8 @@ module.exports.run = async(bot, message, args) =>{
              for(var i = 0 ; i < 5 ; i ++)
              {
                let person = message.guild.members.get(rank_array[i])
-               let name = vlkys[rank_array[i]].favor[type] > 0 ? `**${person.displayName}**` : "-" 
+               let name = "查無此人"
+               if(person) name = vlkys[rank_array[i]].favor[type] > 0 ? `**${person.displayName}**` : "-" 
                str += show_rank(i+1) + "　" + name + "　好感度：" + vlkys[rank_array[i]].favor[type] + "\n"
              }
              embed = new Discord.RichEmbed()

@@ -59,7 +59,33 @@ module.exports.run = async(bot, message, args) =>{
           .setThumbnail("https://i.imgur.com/wMfI5Fw.jpg");
           return message.channel.send(embed);
           break;
-        
+          
+        case "save":
+          if(!args[2]) return message.reply("請輸入操作的數量。");
+          if(args[2] == "all")
+          {
+            bankfile[id].savings = bankfile[id].savings + crystals[id].crystals;
+            crystals[id].crystals -= crystals[id].crystals
+            fs.writeFileSync("./crystals.json",JSON.stringify(crystals));
+            fs.writeFileSync("./bankfile.json",JSON.stringify(bankfile));
+            return message.reply("<:crystal:431483260468592641>存款成功。");
+          }
+          else
+          {
+            let num1 = Math.floor(parseInt(args[2]));
+            if(!Number.isInteger(num1)) return message.reply("請輸入正確整數。");
+            if(num1 <= 0) return message.reply("請輸入正整數。");
+            if(crystals[id].crystals < num1) return message.reply("艦長的水晶似乎不夠呢。");
+            else
+            {
+              bankfile[id].savings =  bankfile[id].savings + num1;
+              crystals[id].crystals = crystals[id].crystals - num1;
+              fs.writeFileSync("./crystals.json",JSON.stringify(crystals));
+              fs.writeFileSync("./bankfile.json",JSON.stringify(bankfile));
+              return message.reply("<:crystal:431483260468592641>存款成功。");
+            }
+          }
+          break;
       }
       
       if(!args[2]) return message.reply("請輸入操作的數量。");
@@ -69,17 +95,7 @@ module.exports.run = async(bot, message, args) =>{
       
        switch(args[1])
       {
-        case "save":
-          if(crystals[id].crystals < num) return message.reply("艦長的水晶似乎不夠呢。");
-          else
-          {
-            bankfile[id].savings =  bankfile[id].savings + num;
-            crystals[id].crystals = crystals[id].crystals - num;
-            fs.writeFileSync("./crystals.json",JSON.stringify(crystals));
-            fs.writeFileSync("./bankfile.json",JSON.stringify(bankfile));
-            return message.reply("<:crystal:431483260468592641>存款成功。");
-          }
-          break;
+        
            
         case "withdraw":
           if(bankfile[id].savings < num) return message.reply("艦長的存款似乎不夠呢。");

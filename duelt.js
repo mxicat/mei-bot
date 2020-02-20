@@ -151,6 +151,12 @@ module.exports.run = async(bot, message, args) =>{
       else if(vlkys[id].rank[type] == "EX") mp = 1.4
       else mp = 1.1;
       
+      let ml = 1
+      if(vlkys[id].favor[type]) ml += (vlkys[id].favor[type]/10000)/10  // 好感度補償
+      if(ml > 1.1) ml = 1.1
+      //if(vlkys[id].marry[type] == 1) ml += 0.05;
+      mp *= ml
+      
       player.sp = 0;
       player.sp_up = 1;
       player.sp_gaining_up = 0;

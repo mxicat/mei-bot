@@ -229,6 +229,7 @@ module.exports.run = async(bot, message, args) =>{
     if( now.getDay() == 1 && now.getDate() != co_timer.weekday) //周更
     {
       console.log("周更");
+      let str = "";
       for(type of Object.keys(colist))  
       {
          corp = colist[type];
@@ -260,14 +261,19 @@ module.exports.run = async(bot, message, args) =>{
                  corp.bonus -= corp.sharelist[person]*num;
                }
              }
-             channel = message.guild.channels.get("621999946429628416");
-             channel.send(vlkylist[corp.type].name +" 公司分紅： " + "每股獲得 " + num + " 星石。");
+             str += vlkylist[corp.type].name +" 公司分紅： " + "每股獲得 " + num + " 星石。" + "\n";
            }
          }
         banner_renew(type);
       }
       
-     
+      embed = new Discord.RichEmbed();
+      channel = message.guild.channels.get("621999946429628416");
+      embed.setColor("#aee075")
+      embed.setDescription(str)
+      channel.send(embed)
+      
+      str = "";
       let rank_array = (Object.keys(duellist)).sort(function(a, b){return duellist[b].elo - duellist[a].elo})
       let num_rank = 1;
       for(i = 0 ; i < rank_array.length && num_rank <= 10 ; i++)
@@ -299,8 +305,9 @@ module.exports.run = async(bot, message, args) =>{
               else if(vlkys[rank_array[i]].rank[type] == "EX") ranking += 16*mp;
             }
             stars[rank_array[i]].stars += ranking * x
-            channel = message.guild.channels.get("621999946429628416");
-            channel.send(person.displayName +" 獲得結算星石： " + ranking * x);
+            
+            
+            str += person.displayName +" 獲得結算星石： " + ranking * x + "\n";
           }
           duellist[rank_array[i]].win = 0
           duellist[rank_array[i]].lose = 0
@@ -309,6 +316,11 @@ module.exports.run = async(bot, message, args) =>{
           num_rank ++
         }
       }
+      channel = message.guild.channels.get("621999946429628416");
+      embed = new Discord.RichEmbed();
+      embed.setColor("#2b75e0")
+      embed.setDescription(str)
+      channel.send(embed)
       co_timer.weekday = now.getDate();
       fs.writeFileSync("./colist.json",JSON.stringify(colist));
       fs.writeFileSync("./duellist.json",JSON.stringify(duellist));
@@ -346,7 +358,7 @@ module.exports.run = async(bot, message, args) =>{
            {
              if(!vlkys[person].favor) vlkys[person].favor = {"B0":0}
              if(!vlkys[person].favor[corp.type]) vlkys[person].favor[corp.type] = 0
-             vlkys[person].favor[corp.type] += Math.ceil(corp.sharelist[person]/total*100)
+             if(corp.sharelist[person]) vlkys[person].favor[corp.type] += Math.ceil(corp.sharelist[person]/total*100)
            }
            
            
