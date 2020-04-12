@@ -30,6 +30,32 @@ module.exports.run = async(bot, message, args) =>{
             return message.reply("身分組已新增。")
           }
           break;
+        
+        case "687561312380911617":
+          if(man.roles.find(role => role.id == "687564020210729103"))
+          {
+            man.removeRole("687564020210729103");
+            return message.reply("身分組已移除。")
+          }
+          else
+          {
+            man.addRole("687564020210729103");
+            return message.reply("身分組已新增。")
+          }
+          break;
+      
+        case "685459429084102660":
+          if(man.roles.find(role => role.id == "686795561126330392"))
+          {
+            man.removeRole("686795561126330392");
+            return message.reply("身分組已移除。")
+          }
+          else
+          {
+            man.addRole("686795561126330392");
+            return message.reply("身分組已新增。")
+          }
+          break;
       
          case "628956893972267018":
           if(man.roles.find(role => role.id == "641671087456780338"))
