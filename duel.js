@@ -1264,6 +1264,8 @@ module.exports.run = async(bot, message, args) =>{
         duellist[id].elo += num;
         duellist[opid].elo -= num + 1;
         duellist[id].win ++
+        if(!duelcount[id].match) duelcount[id].match = {now:0, list:[], history:[]}
+        if(!duelcount[opid].match) duelcount[opid].match = {now:0, list:[], history:[]}
         if(!duelcount[id].match.history) duelcount[id].match.history = []
         if(!duelcount[opid].match.history) duelcount[opid].match.history = []
         duelcount[id].match.history.push("🗡 " + opponent.displayName + " 🏆" + duellist[id].elo +` (🔺${num})`)

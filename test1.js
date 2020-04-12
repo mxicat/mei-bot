@@ -30,17 +30,32 @@ module.exports.run = async (bot, message, args) => {
   let man = message.guild.members.get(id);
   let now = new Date();
   let month = now.getMonth();
-  let today = now.getDay();
+  let today = now.getDate();
   let time = now.getTime();
 
   let mei = message.guild.members.get("433287968292339722");
   let guild = message.guild;
 
-  let role = message.guild.roles.find(x => x.name == "GM");
 
-  //coplayer[id] = { own: 0, shares: {}, history: [] };
-  //duelcount[id].pvp = 3
- message.reply("<:space:657280156204924948>")
+  
+  var yahooStockPrices = require('yahoo-stock-prices');
+
+// start month, start day, start year, end month, end day, end year, ticker, frequency
+
+// month [ 0 -> 11 ] = [ January -> December ]
+
+yahooStockPrices.getHistoricalPrices(3, 2, 2016, 3, 9, 2016, 'JNJ', '1d', function(err, prices){
+
+	//rconsole.log(prices);
+
+});
+
+yahooStockPrices.getCurrentPrice('0050:TW', function(err, price){
+
+	console.log(price);
+
+});
+
 
   return;
 };

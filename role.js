@@ -17,8 +17,8 @@ module.exports.run = async(bot, message, args) =>{
     if((!message.channel.name.includes("指令")) && (!message.channel.name.includes("賭場"))) return message.reply("使用指令請至<#336341341053255684>。");
     let man = message.guild.members.get(id);
     let embed = new Discord.RichEmbed()
-    let ranking = message.guild.roles.find(role => role.name === "LV.20 女武神．強襲").position;
-    if(man.hoistRole.position < ranking) return message.reply("限制功能：水文等級20以上開放");    
+    let ranking = message.guild.roles.find(role => role.name === "LV.40 聖女祈禱").position;
+    if(man.hoistRole.position < ranking && (!rolelist[id].role)) return message.reply("限制功能：水文等級40以上開放");    
   
     function getRandomColor() {
       var letters = '0123456789ABCDEF'.split('');

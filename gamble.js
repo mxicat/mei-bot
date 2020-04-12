@@ -34,9 +34,9 @@ module.exports.run = async(bot, message, args) =>{
   
       if(!args[1]) return message.reply("請輸入當作籌碼的水晶數量。");
       let num = Math.floor(parseInt(args[1]));
+      let num2 = 0;
       if(!Number.isInteger(num)) return message.reply("請輸入正確整數。");
       if(num <= 0) return message.reply("請輸入正整數。");
-      if(num > 3000) return message.reply("賭金上限是3000<:crystal:431483260468592641>。");
       if(crystals[id].crystals < num) return message.reply("艦長的水晶似乎不夠呢。");
       
       
@@ -108,8 +108,10 @@ module.exports.run = async(bot, message, args) =>{
            embed = new Discord.RichEmbed()
           .setColor("#FFBA84")
           .setTitle("恭喜艦長贏了水晶ｘ"+num*2);
-          crystals["433287968292339722"].crystals = crystals["433287968292339722"].crystals - num;
-          crystals[id].crystals = crystals[id].crystals + num;
+          if(num*2 >= 10000){ num2 = num - Math.floor(num*2*0.01); embed.addField("賭博稅","已額外收取 "+Math.floor(num*2*0.01) +" 水晶");}
+          else num2 = num;
+          crystals["433287968292339722"].crystals = crystals["433287968292339722"].crystals - num2;
+          crystals[id].crystals = crystals[id].crystals + num2;
           gd[id].win ++;
           fs.writeFileSync("./gamble_data.json",JSON.stringify(gd));
           fs.writeFileSync("./crystals.json",JSON.stringify(crystals));
@@ -136,10 +138,12 @@ module.exports.run = async(bot, message, args) =>{
           embed = new Discord.RichEmbed()
           .setColor("#FFBA84")
           .setTitle("恭喜艦長贏了水晶ｘ"+num*2);
-          crystals["433287968292339722"].crystals = crystals["433287968292339722"].crystals - num;
+          if(num*2 >= 10000){ num2 = num - Math.floor(num*2*0.01); embed.addField("賭博稅","已額外收取 "+Math.floor(num*2*0.01) +" 水晶");}
+          else num2 = num;
+          crystals["433287968292339722"].crystals = crystals["433287968292339722"].crystals - num2;
           gd[id].win ++;
           fs.writeFileSync("./gamble_data.json",JSON.stringify(gd));
-          crystals[id].crystals = crystals[id].crystals + num;
+          crystals[id].crystals = crystals[id].crystals + num2;
           fs.writeFileSync("./crystals.json",JSON.stringify(crystals));
           return message.channel.send(embed);
         }
