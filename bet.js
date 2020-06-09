@@ -63,6 +63,7 @@ module.exports.run = async(bot, message, args) =>{
           break;
           
         case "stop":
+          if(message.guild.members.get(id).roles.find(x => x.name == "書記官") == null) return message.channel.send("需要**GM**權限");
           if(!betlist["info"].active) return message.reply("賭盤未開啟");
           betlist["info"].stop = 1;
           return message.reply("本期已截止下注。");
