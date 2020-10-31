@@ -16,6 +16,7 @@ module.exports.run = async(bot, message, args) =>{
    function pp(id){
       var num = 0;
       man = message.guild.members.get(id);
+      if (man.roles.find(x => x.name === "LV.150 女武神．愛醬") != null) num = 150;
       if (man.roles.find(x => x.name == "LV.80 血色玫瑰") != null) num = 80;
       if (man.roles.find(x => x.name == "LV.76 次元邊界突破") != null) num = 76;
       if (man.roles.find(x => x.name == "LV.72 血騎士．月煌") != null) num = 72;

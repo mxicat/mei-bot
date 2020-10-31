@@ -44,20 +44,20 @@ module.exports.run = async(bot, message, args) =>{
           break;
           
         case "crystal":
-           if(!man.roles.find(x => x.id == "438267716915298304")) return message.channel.send("sayb 艦長就這麼想當囚犯嗎?");
-          if(crystals[id].crystals < mul*300) return message.channel.send("sayb 布洛尼亞不做吃虧的交易，請好好工作賺錢。");
+           if(!man.roles.find(x => x.id == "438267716915298304")) return message.channel.send("艦長就這麼想當囚犯嗎?");
+          if(crystals[id].crystals < mul*300) return message.channel.send("芽衣不做吃虧的交易，請好好工作賺錢。");
           else
           {
               crystals[id].crystals -= mul*300;
               fs.writeFileSync("./crystals.json",JSON.stringify(crystals));
               man.removeRole("438267716915298304");
-              return message.channel.send("sayb 保釋成功。");
+              return message.channel.send("保釋成功。");
           }
           break;
           
          case "roll":
-          if(!man.roles.find(x => x.id == "438267716915298304")) return message.channel.send("sayb 艦長就這麼想當囚犯嗎?");
-          if(crystals[id].crystals < mul*50) return message.channel.send("sayb 布洛尼亞不做吃虧的交易，請好好工作賺錢。");
+          if(!man.roles.find(x => x.id == "438267716915298304")) return message.channel.send("艦長就這麼想當囚犯嗎?");
+          if(crystals[id].crystals < mul*50) return message.channel.send("芽衣不做吃虧的交易，請好好工作賺錢。");
           else
           { 
             crystals[id].crystals -= mul*50;
@@ -73,7 +73,7 @@ module.exports.run = async(bot, message, args) =>{
             }
             else
             {
-              return message.channel.send("sayb 逃獄失敗，請艦長繼續陪伴布洛尼亞吧。");
+              return message.channel.send("逃獄失敗，請艦長繼續陪伴芽衣吧。");
             }   
           }
           break;

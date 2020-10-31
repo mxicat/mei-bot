@@ -162,7 +162,7 @@ module.exports.run = async(bot, message, args) =>{
            if(!message.guild.members.get(person))
            {
              let prole = rolelist[person].role
-             if(prole) 
+             if(message.guild.roles.find(x => x.id == prole)) 
              {
                let name = message.guild.roles.find(x => x.id == prole).name;
                message.channel.send(name);

@@ -113,6 +113,7 @@ module.exports.run = async(bot, message, args) =>{
             if(man.roles.find(role => role.id == "438267716915298304")) return message.reply("囚犯禁止貸款。");
            
             var m = 0;
+            if (man.roles.find(x => x.name === "LV.150 女武神．愛醬") != null) num = 150;
             if (man.roles.find(x => x.name === "LV.80 血色玫瑰") != null) m = 80;
             if (man.roles.find(x => x.name === "LV.76 次元邊界突破") != null) m = 76;
             if (man.roles.find(x => x.name === "LV.72 血騎士．月煌") != null) m = 72;

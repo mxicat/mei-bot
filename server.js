@@ -52,6 +52,7 @@ const killed = require("./killed.json");
 
 var enable = 0;
 var rage = 0;
+
 let votelist = new Set();
 let cooldownlist = new Set();
 
@@ -81,7 +82,21 @@ bot.on("ready",function() {
     console.log("Ready!");
 });
 
+/*bot.on("messageDelete", (message,user) => {
+  
+  if(message.author.id == "221465966385561600"){
+    let emb = new Discord.RichEmbed()
+    .setAuthor(message.author.username , message.author.avatarURL)
+    .setDescription(message.content)
+    .addField("Channel",message.channel.name)
+    .setTimestamp()
+    message.channel.send(emb);
+    message.reply("還想自刪阿底迪")
+  }
+})*/
+
 bot.on('message', (message) => {
+    //return;  //sleep
     if(message.author.id == '433287968292339722') return;
     
 
@@ -104,16 +119,18 @@ bot.on('message', (message) => {
     let today = now.getDay();
     let time = now.getTime();
     let man = message.guild.members.get(id);
+    var gu = bot.guilds.get("586891417440485383")
+    var ch2 = gu.channels.get("586891418493124619")
     if((message.attachments.array())[0] && message.channel.id != "538904002885320705")
     {
-      let ch = message.guild.channels.get("538904002885320705");
-      ch.send((message.attachments.array())[0].url);
+      let ch = message.guild.channels.find(c => c.id == "538904002885320705");
+      if(ch) ch.send((message.attachments.array())[0].url);
     }
     
     let tempmute = function(id,ptime){
         let tomute = message.guild.members.get(id);
         let muterole = message.guild.roles.find(role => role.name === "泡水海豹");
-        tomute.addRole(muterole.id);
+        tomute.addRole(muterole.id).catch( err => console.log(err));
         killed[id].seal = 1;
         killed[id].time = time;
         killed[id].ptime = ptime;
@@ -156,6 +173,31 @@ bot.on('message', (message) => {
     
     
     switch(cmd){
+    case "DeepDarkFantasy":
+      if(message.channel.id != "450362248427208714") return;
+      if(gu.members.get(id)) return gu.members.get(id).send("艦長已經是個成熟的大人了，該學會自己開車了。");
+      man.send("想不到你是這樣的" + man.displayName)
+      var invite = ch2.createInvite( {maxUses:1} ) 
+      .then(invite => man.send(invite.url))
+      .catch(console.error);
+      return;
+      break;
+      
+    case"DDF":
+      var role = message.guild.roles.find(role => role.id == "626732755371163659");
+      if(!role) return;
+      man.addRole("626732755371163659");
+      message.reply("Deep♂Dark♂Fantasy")
+      return;
+      break;
+    
+    case"我要入學":
+      var role = message.guild.roles.find(role => role.id == "622484410825965598");
+      if(!role) return;
+      man.addRole("622484410825965598");
+      message.reply("歡迎入學")
+      return;
+      break;
     case "ttoday":
       let now1 = new Date();
       message.channel.send(`今天是星期${now1.getDay()}`);
@@ -182,9 +224,9 @@ bot.on('message', (message) => {
     case "kill":
       if(man.roles.find(role => role.name === "bot") != null) return message.channel.send("請不要用機器人幹壞事。");
       if(!message.channel.name.includes("指令")) return message.reply("使用指令請至<#336341341053255684>。");
-      if(man.roles.find(role => role.id === "438267716915298304")) return message.channel.send("sayb 重裝小兔19C，殲滅想做壞事的囚犯。");
+      if(man.roles.find(role => role.id === "438267716915298304")) return message.channel.send("請不要做壞事。");
       if(!message.guild.members.get(opid)) return message.channel.send("請TAG正確的對象。");
-      if(enable || (message.guild.members.get(opid).roles.find(role => role.name === "泡水海豹") != null)) return message.channel.send("請等待現階段的審判結束。");
+      if(enable || (message.guild.members.get(opid).roles.find(role => role.name == "泡水海豹") != null)) return message.channel.send("請等待現階段的審判結束。");
       if(message.guild.members.get(opid).user.bot) return message.reply("請不要殺機器人。");
       if(id == opid) return message.reply("請不要殺自己。");
       /////////////////////////////initialize//////////////////////////////////////////

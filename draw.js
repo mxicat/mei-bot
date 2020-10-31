@@ -38,6 +38,7 @@ module.exports.run = async(bot, message, args) =>{
       let num = Math.floor(parseInt(args[1]));
       if(!Number.isInteger(num)) return message.reply("請輸入正確整數。");
       if(num <= 0) return message.reply("請輸入正整數。");
+      if(num > 10000) return message.reply("最大值10000。");
       if(crystals[id].crystals < num*60) return message.reply("艦長的水晶似乎不夠呢。");
       
       crystals[id].crystals = crystals[id].crystals - num*60;
