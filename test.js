@@ -20,7 +20,7 @@ const exchangelist = require("./exchangelist.json");
 
 module.exports.run = async (bot, message, args) => {
   var id = message.author.id;
-  if (message.guild.members.get(id).roles.find(x => x.name, "GM") == null)
+  if (!message.guild.members.get(id).roles.find(x => x.name, "GM"))
     return message.channel.send("需要**GM**權限");
   let man = message.guild.members.get(id);
   let now = new Date();
@@ -30,16 +30,16 @@ module.exports.run = async (bot, message, args) => {
 
   let mei = message.guild.members.get("433287968292339722");
   let guild = message.guild;
-   var i = 0
+  var i = 0;
   let role = message.guild.roles.find(x => x.name == "GM");
-  
+
   /*for(i of Object.keys(duellist))
   {
     duellist[i].win = 0;
     duellist[i].lose = 0;
     duellist[i].elo = 1000;           
   }*/
-  for(i of Object.keys(duelcount))
+  /*for(i of Object.keys(duelcount))
   {
     if(!duelcount[i].match) duelcount[i].match = {now:0, list:[], history:[]}
     duelcount[i].match["history"] = []
@@ -48,6 +48,9 @@ module.exports.run = async (bot, message, args) => {
   fs.writeFileSync("./duellist.json",JSON.stringify(duellist));
     
   fs.writeFileSync("./duelcount.json",JSON.stringify(duelcount));
+*/
+
+  message.reply(message.guild.roles.find(role => (role.name = "@everyone")).id);
 
   return;
 };

@@ -107,8 +107,10 @@ module.exports.run = async(bot, message, args) =>{
         for(i of Object.keys(corp.sharelist)) total += corp.sharelist[i]
         embed = new Discord.RichEmbed();
         string = "";
+        let owner1 = "無";
+        if(message.guild.members.get(corp.owner)) owner1 = message.guild.members.get(corp.owner).displayName;
         embed.setColor("#53e119").setTitle("公司："+ vlkylist[type].name)
-        embed.addField("經理人",message.guild.members.get(corp.owner).displayName,true)
+        embed.addField("經理人",owner1,true)
         embed.addField("參考市價",corp.price,true)
         embed.addField("總釋股數",total,true)
         embed.addField("日成交量",corp.volume,true)
