@@ -57,13 +57,16 @@ module.exports.run = async(bot, message, args) =>{
 
       for(i = 0 ; i < corp.buy.length ; i++)
       {
-        name = message.guild.members.get(corp.buy[i].owner).displayName.slice(0,6);
+        if(message.guild.members.get(corp.buy[i].owner)) name = message.guild.members.get(corp.buy[i].owner).displayName.slice(0,6);
+        else name = "查無此人"
+        
         bo_s += `${name} 欲以單價 ${corp.buy[i].price} 買入 ${corp.buy[i].num} 股。`
         bo_s += "\n"
       }
       for(i = 0 ; i < corp.sell.length ; i++)
       {
-        name = message.guild.members.get(corp.sell[i].owner).displayName.slice(0,6);
+        if(message.guild.members.get(corp.sell[i].owner)) name = message.guild.members.get(corp.sell[i].owner).displayName.slice(0,6);
+        else name = "查無此人"
         so_s += `${name} 欲以單價 ${corp.sell[i].price} 賣出 ${corp.sell[i].num} 股。`
         so_s += "\n"
       }
