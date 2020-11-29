@@ -38,11 +38,13 @@ module.exports.run = async (bot, message, args) => {
   function pp(id, man) {
     var num = 0;
     if (!man) return 0;
-    if (man.roles.find(x => x.name === "LV.150 女武神．愛醬") != null) num = 150;
+    if (man.roles.find(x => x.name === "LV.150 女武神．愛醬") != null)
+      num = 150;
     if (man.roles.find(x => x.name === "LV.80 血色玫瑰") != null) num = 80;
     if (man.roles.find(x => x.name === "LV.76 次元邊界突破") != null) num = 76;
     if (man.roles.find(x => x.name === "LV.72 血騎士．月煌") != null) num = 72;
-    if (man.roles.find(x => x.name === "LV.68 雷電女王的鬼鎧") != null) num = 68;
+    if (man.roles.find(x => x.name === "LV.68 雷電女王的鬼鎧") != null)
+      num = 68;
     if (man.roles.find(x => x.name === "LV.64 白騎士．月光") != null) num = 64;
     if (man.roles.find(x => x.name === "LV.60 異度黑核侵蝕") != null) num = 60;
     if (man.roles.find(x => x.name === "LV.56 銀狼的黎明") != null) num = 56;
@@ -71,20 +73,10 @@ module.exports.run = async (bot, message, args) => {
     if (!pp) continue;
     if (killed[i].seal) {
       if (time - killed[i].time >= killed[i].ptime) {
-        await pp
-          .removeRole(muterole)
-          .then(() => {
-            killed[i].seal = 0;
-            killed[i].time = 0;
-            killed[i].ptime = 0;
-          })
-          .catch(err => console.log(err));
-      }
-    }
-    if (killed[i].ptime == 0) {
-      if (pp) {
-        if (pp.roles.find(x => x.name == "泡水海豹"))
-          await pp.removeRole(muterole).catch(e => console.log(e));
+        pp.removeRole(muterole)
+        killed[i].seal = 0;
+        killed[i].time = 0;
+        killed[i].ptime = 0;
       }
     }
   }

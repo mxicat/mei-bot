@@ -222,6 +222,7 @@ bot.on('message', (message) => {
       break;   
         
     case "kill":
+      return;
       if(man.roles.find(role => role.name === "bot") != null) return message.channel.send("請不要用機器人幹壞事。");
       if(!message.channel.name.includes("指令")) return message.reply("使用指令請至<#336341341053255684>。");
       if(man.roles.find(role => role.id === "438267716915298304")) return message.channel.send("請不要做壞事。");

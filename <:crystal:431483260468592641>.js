@@ -33,6 +33,13 @@ module.exports.run = async(bot, message, args) =>{
        await fs.writeFileSync("./bankfile.json",JSON.stringify(bankfile));
       };
   
+    function show_member_name(id)
+    {
+      if(message.channel.guild.members.get(id)) return message.channel.guild.members.get(id).displayName
+      else return "查無此人"
+    }
+    
+  
     if(args[1])
     {
       switch(args[1])
@@ -48,15 +55,15 @@ module.exports.run = async(bot, message, args) =>{
             function(a, b){
                return wealth(b) - wealth(a);
             });
-            
+        
            let em = new Discord.RichEmbed()
           .setColor("#DC9FB4")
           .setTitle("水晶排行榜")
-          .addField("#1",message.guild.members.get(rich[0]).displayName + "   水晶資產： "+ wealth(rich[0]))
-           .addField("#2",message.guild.members.get(rich[1]).displayName + "   水晶資產： "+ wealth(rich[1]))
-           .addField("#3",message.guild.members.get(rich[2]).displayName + "   水晶資產： "+ wealth(rich[2]))
-           .addField("#4",message.guild.members.get(rich[3]).displayName + "   水晶資產： "+ wealth(rich[3]))
-           .addField("#5",message.guild.members.get(rich[4]).displayName + "   水晶資產： "+ wealth(rich[4]))
+          .addField("#1",show_member_name(rich[0]) + "   水晶資產： "+ wealth(rich[0]))
+           .addField("#2",show_member_name(rich[1]) + "   水晶資產： "+ wealth(rich[1]))
+           .addField("#3",show_member_name(rich[2]) + "   水晶資產： "+ wealth(rich[2]))
+           .addField("#4",show_member_name(rich[3]) + "   水晶資產： "+ wealth(rich[3]))
+           .addField("#5",show_member_name(rich[4]) + "   水晶資產： "+ wealth(rich[4]))
           .setThumbnail("https://i.imgur.com/tvAkopu.png");
           
           return message.channel.send(em);
