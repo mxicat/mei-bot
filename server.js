@@ -12,7 +12,7 @@ setInterval(() => {
   http.get(`http://${process.env.PROJECT_DOMAIN}.glitch.me/`);
 }, 200000);
 //keep it alive*/
-const token = ENV['SECRET']
+const token = process.env.SECRET
 const Discord = require('discord.js');
 const commando = require('discord.js-commando');
 const bot = new commando.Client({
