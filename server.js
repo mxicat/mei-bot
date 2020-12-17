@@ -1,5 +1,5 @@
 
-//keep it alive
+/*//keep it alive
 const http = require('http');
 const express = require('express');
 const app = express();
@@ -11,8 +11,8 @@ app.listen(process.env.PORT);
 setInterval(() => {
   http.get(`http://${process.env.PROJECT_DOMAIN}.glitch.me/`);
 }, 200000);
-//keep it alive
-const token = process.env.SECRET
+//keep it alive*/
+const token = ENV['SECRET']
 const Discord = require('discord.js');
 const commando = require('discord.js-commando');
 const bot = new commando.Client({
