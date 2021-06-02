@@ -112,12 +112,12 @@ module.exports.run = async(bot, message, args) =>{
       let ranking = message.guild.roles.find(role => role.name === "LV.20 女武神．強襲").position;
       if(!man.hoistRole) return message.channel.send(embed);
       if(man.hoistRole.position < ranking) return message.channel.send(embed);
-      if(coinlist[id].ltd >= 2500) return message.channel.send(embed);
-      if(coinlist[id].now > 99) return message.channel.send(embed);
+      //if(coinlist[id].ltd >= 2500) return message.channel.send(embed);
+      //if(coinlist[id].now > 99) return message.channel.send(embed);
       let mulp = coinlist[id].now*coinlist[id].now;
-      if (mulp > 5000) mulp = 5000;
+      //if (mulp > 5000) mulp = 5000;
       let coin_rand = Math.floor(Math.random()*100*mulp + 1)
-      if((coinlist[id].ltd + num) > 2500) num = 2500 - coinlist[id].ltd;
+      //if((coinlist[id].ltd + num) > 2500) num = 2500 - coinlist[id].ltd;
       if( num > mulp) num = mulp;
       let coin_num = num*100;
       coinlist[id].ltd += num;

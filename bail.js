@@ -44,7 +44,7 @@ module.exports.run = async(bot, message, args) =>{
           break;
           
         case "crystal":
-           if(!man.roles.find(x => x.id == "438267716915298304")) return message.channel.send("艦長就這麼想當囚犯嗎?");
+           if(!man.roles.find(x => x.name == "囚犯")) return message.channel.send("艦長就這麼想當囚犯嗎?");
           if(crystals[id].crystals < mul*300) return message.channel.send("芽衣不做吃虧的交易，請好好工作賺錢。");
           else
           {
@@ -56,7 +56,7 @@ module.exports.run = async(bot, message, args) =>{
           break;
           
          case "roll":
-          if(!man.roles.find(x => x.id == "438267716915298304")) return message.channel.send("艦長就這麼想當囚犯嗎?");
+          if(!man.roles.find(x => x.name == "囚犯")) return message.channel.send("艦長就這麼想當囚犯嗎?");
           if(crystals[id].crystals < mul*50) return message.channel.send("芽衣不做吃虧的交易，請好好工作賺錢。");
           else
           { 

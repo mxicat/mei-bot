@@ -243,20 +243,14 @@ module.exports.run = async(bot, message, args) =>{
                return abysslog[b].level - abysslog[a].level;
             });
             
-          function show_member_name(id)
-          {
-            if(message.channel.guild.members.get(id)) return message.channel.guild.members.get(id).displayName
-            else return "查無此人"
-          }
-          
            let em = new Discord.RichEmbed()
           .setColor("#DC9FB4")
           .setTitle("深淵排行榜")
-          .addField("#1",show_member_name(rich[0]) + "   最高層數： "+ abysslog[rich[0]].level)
-           .addField("#2",show_member_name(rich[1]) + "   最高層數： "+ abysslog[rich[1]].level)
-           .addField("#3",show_member_name(rich[2])+ "   最高層數： "+ abysslog[rich[2]].level)
-           .addField("#4",show_member_name(rich[3])+ "   最高層數： "+ abysslog[rich[3]].level)
-           .addField("#5",show_member_name(rich[4])+ "   最高層數： "+ abysslog[rich[4]].level)
+          .addField("#1",message.guild.members.get(rich[0]).displayName + "   最高層數： "+ abysslog[rich[0]].level)
+           .addField("#2",message.guild.members.get(rich[1]).displayName + "   最高層數： "+ abysslog[rich[1]].level)
+           .addField("#3",message.guild.members.get(rich[2]).displayName + "   最高層數： "+ abysslog[rich[2]].level)
+           .addField("#4",message.guild.members.get(rich[3]).displayName + "   最高層數： "+ abysslog[rich[3]].level)
+           .addField("#5",message.guild.members.get(rich[4]).displayName + "   最高層數： "+ abysslog[rich[4]].level)
           
           return message.channel.send(em);
           break;
