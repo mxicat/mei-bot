@@ -35,7 +35,7 @@ module.exports.run = async(bot, message, args) =>{
   
     function show_member_name(id)
     {
-      if(message.channel.guild.members.get(id)) return message.channel.guild.members.get(id).displayName
+      if(message.guild.members.get(id)) return message.guild.members.get(id).displayName
       else return "查無此人"
     }
     
@@ -55,7 +55,7 @@ module.exports.run = async(bot, message, args) =>{
             function(a, b){
                return wealth(b) - wealth(a);
             });
-        
+            
            let em = new Discord.RichEmbed()
           .setColor("#DC9FB4")
           .setTitle("水晶排行榜")

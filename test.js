@@ -33,6 +33,14 @@ module.exports.run = async (bot, message, args) => {
   var i = 0;
   let role = message.guild.roles.find(x => x.name == "GM");
 
+  
+  let price = require('crypto-price')
+price.getCryptoPrice('USD', 'DOGE').then(obj => { // Base for ex - USD, Crypto for ex - ETH 
+    console.log(obj.price)
+}).catch(err => {
+    console.log(err)
+});
+  
   /*for(i of Object.keys(duellist))
   {
     duellist[i].win = 0;
@@ -50,8 +58,12 @@ module.exports.run = async (bot, message, args) => {
   fs.writeFileSync("./duelcount.json",JSON.stringify(duelcount));
 */
 
-  message.reply(message.guild.roles.find(role => (role.name = "@everyone")).id);
-
+  //message.reply(message.guild.roles.find(role => (role.name = "@everyone")).id);
+  
+  //items["286520983563796480"].items["006"] += 2000;
+  //fs.writeFileSync("./items.json", JSON.stringify(items));
+  
+  
   return;
 };
 

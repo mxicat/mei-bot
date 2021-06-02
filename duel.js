@@ -142,7 +142,7 @@ module.exports.run = async(bot, message, args) =>{
   
     function explist(lv)  // required exp for lv up
     {
-      if(lv >= 100) return "∞"
+      //if(lv >= 100) return "∞"
       return lv*lv*lv + 100*lv - 50
     }
    
@@ -153,7 +153,7 @@ module.exports.run = async(bot, message, args) =>{
     
     function lvup(id,exp)
     {
-      if(vlkys[id].status.lv >= 100) return;
+      //if(vlkys[id].status.lv >= 100) return;
       vlkys[id].status.exp += exp;
       while( vlkys[id].status.exp >= explist(vlkys[id].status.lv))
       {
