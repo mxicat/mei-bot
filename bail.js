@@ -18,7 +18,7 @@ module.exports.run = async(bot, message, args) =>{
     let man = message.guild.members.get(id);
     let embed = new Discord.RichEmbed()
  
-    let crim = message.guild.roles.find(x => x.id == "438267716915298304");
+    let crim = message.guild.roles.find(x => x.name == "囚犯");
     
      
      
@@ -26,9 +26,9 @@ module.exports.run = async(bot, message, args) =>{
     {
        embed = new Discord.RichEmbed()
       .setColor("#C99833")
-      .setTitle("監獄保釋方法  bail info 查看犯罪值")
-      .addField("機會","輸入 bail crystal 支付 犯罪值 x **300** <:crystal:431483260468592641> 即刻保釋出獄",true)
-      .addField("命運","輸入 bail roll 消耗 犯罪值 x **50** <:crystal:431483260468592641>進行擲骰，若點數為 **6** 即可出獄。",true)
+      .setTitle("bail info 查看犯罪值")
+      //.addField("機會","輸入 bail crystal 支付 犯罪值 x **300** <:crystal:431483260468592641> 即刻保釋出獄",true)
+      //.addField("命運","輸入 bail roll 消耗 犯罪值 x **50** <:crystal:431483260468592641>進行擲骰，若點數為 **6** 即可出獄。",true)
       return message.channel.send(embed);
     }
     else
@@ -43,14 +43,14 @@ module.exports.run = async(bot, message, args) =>{
           return message.channel.send("艦長的犯罪值是" + mul);
           break;
           
-        case "crystal":
+        /*case "crystal":
            if(!man.roles.find(x => x.name == "囚犯")) return message.channel.send("艦長就這麼想當囚犯嗎?");
           if(crystals[id].crystals < mul*300) return message.channel.send("芽衣不做吃虧的交易，請好好工作賺錢。");
           else
           {
               crystals[id].crystals -= mul*300;
               fs.writeFileSync("./crystals.json",JSON.stringify(crystals));
-              man.removeRole("438267716915298304");
+              man.removeRole(crim);
               return message.channel.send("保釋成功。");
           }
           break;
@@ -68,7 +68,7 @@ module.exports.run = async(bot, message, args) =>{
            message.reply("你擲出了 "+ rand+ " 點。");
             if(rand == 6)
             {
-                man.removeRole("438267716915298304");
+                man.removeRole(crim);
                 return message.reply("已成功逃獄。");
             }
             else
@@ -76,7 +76,7 @@ module.exports.run = async(bot, message, args) =>{
               return message.channel.send("逃獄失敗，請艦長繼續陪伴芽衣吧。");
             }   
           }
-          break;
+          break;*/
           
         default:
           return message.reply("芽衣不清楚艦長想要什麼服務呢。");
