@@ -92,7 +92,7 @@ module.exports.run = async(bot, message, args) =>{
       
       let crime_rand = Math.floor(Math.random()*10000 + 1);
       let crime_num = num;
-      if (crime_num > 5000 ) crime_num = 5000; 
+      //if (crime_num > 5000 ) crime_num = 5000; 
       
       if(crime_rand < crime_num) 
       {
@@ -102,8 +102,9 @@ module.exports.run = async(bot, message, args) =>{
             items[id].items["005"] -= 1;
             val = Math.ceil(val*1.5);
           }
-        embed.addField("誠心悔過","犯罪值降低了 " + val);
         if(baillist[id].time > 0) baillist[id].time -= val;
+        embed.addField("誠心悔過","犯罪值降低了 " + val + ` [當前犯罪值：${baillist[id].time}]`);
+       
       }
       fs.writeFileSync("./items.json",JSON.stringify(items));
       fs.writeFileSync("./baillist.json",JSON.stringify(baillist));

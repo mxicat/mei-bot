@@ -172,19 +172,20 @@ module.exports.run = async(bot, message, args) =>{
          case "rob":
            let ranking = message.guild.roles.find(role => role.name === "LV.20 女武神．強襲").position;
            if(man.hoistRole.position < ranking) return message.reply("需求水文等級20");
-           if(man.roles.find(role => role.id == "438267716915298304")) return message.channel.send("死囚犯給老娘乖乖回去牢裡。");
-           if(man.roles.find(role => role.name == "囚犯")) return message.channel.send("死囚犯給老娘乖乖回去牢裡。");
+           //if(man.roles.find(role => role.id == "438267716915298304")) return message.channel.send("死囚犯給老娘乖乖回去牢裡。");
+          // if(man.roles.find(role => role.name == "囚犯")) return message.channel.send("死囚犯給老娘乖乖回去牢裡。");
+           if(baillist[id].time > 10000) return message.reply("犯罪值過高。");
            if(energy[id].energy < num) return message.reply("艦長的體力似乎不夠呢。");
-           if(num > 1000) return message.reply("搶劫上限1000體力。");
-           if(!baillist[id].enable) baillist[id] = {time:baillist[id].time , enable:"yes"};
+           //if(num > 1000) return message.reply("搶劫上限1000體力。");
+           //if(!baillist[id].enable) baillist[id] = {time:baillist[id].time , enable:"yes"};
            //if(baillist[id].enable == "no") return message.reply("請等待當前搶劫結束。");
-           baillist[id].enable = "no";
-           await fs.writeFileSync("./baillist.json",JSON.stringify(baillist));
+           //baillist[id].enable = "no";
+           //await fs.writeFileSync("./baillist.json",JSON.stringify(baillist));
            let lv = weapons[id].status.lv;
            var rand = Math.floor(Math.random()*100 + 1);
            if(lv > 200) lv = 200;
            let rr = Math.ceil(lv/10);
-           if(man.roles.find(role => role.name == "囚犯")) return message.channel.send("死囚犯給老娘乖乖回去牢裡。");
+           //if(man.roles.find(role => role.name == "囚犯")) return message.channel.send("死囚犯給老娘乖乖回去牢裡。");
           
            if(rand <= 10 + rr)
            {
@@ -192,17 +193,17 @@ module.exports.run = async(bot, message, args) =>{
              let cc = rand * rand * num;
              crystals[id].crystals += cc;
              fs.writeFileSync("./crystals.json",JSON.stringify(crystals));
-             baillist[id].time += rand;
+             baillist[id].time += rand * num;
              fs.writeFileSync("./baillist.json",JSON.stringify(baillist));
              message.reply("搶劫成功，獲得 " + cc +" <:crystal:431483260468592641>" );
            }
            else
            {
              
-             man.addRole(crim);
+             //man.addRole(crim);
              await message.reply("做壞事的艦長，請進監獄反省反省吧。" );
              if(!baillist[id]) { baillist[id] = {time:0}};
-             baillist[id].time += 1;
+             baillist[id].time += num;
              fs.writeFileSync("./baillist.json",JSON.stringify(baillist));
            }
            baillist[id].enable = "yes";
