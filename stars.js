@@ -17,8 +17,8 @@ module.exports.run = async(bot, message, args) =>{
     var id = message.author.id;
     let man = message.guild.members.get(id);
     
-    let ranking = message.guild.roles.find(role => role.name === "LV.20 女武神．強襲").position;
-    if(man.hoistRole.position < ranking) return message.reply("限制功能：水文等級20以上開放");
+    let ranking = message.guild.roles.find(role => role.name === "LV.10 女武神．戰車").position;
+    if(man.hoistRole.position < ranking) return message.reply("限制功能：水文等級10以上開放");
     
     let now = new Date();
     let month = now.getMonth();

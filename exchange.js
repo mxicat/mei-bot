@@ -16,7 +16,7 @@ module.exports.run = async(bot, message, args) =>{
     if(num <= 0) return message.channel.send("請輸入正整數。");
     
     if(!exchangelist[id]) exchangelist[id] = {stars:0}
-    if(exchangelist[id].stars + num > 5000) return message.reply("轉換數量超過上限 (已兌換：" + exchangelist[id].stars +"/5000)")
+    if(exchangelist[id].stars + num > 50000) return message.reply("轉換數量超過上限 (已兌換：" + exchangelist[id].stars +"/50000)")
     if(crystals[id].crystals < num*100) return message.reply("水晶不足 (兌換比例:1:100)。")
     crystals[id].crystals -= num*100
     exchangelist[id].stars += num

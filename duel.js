@@ -78,7 +78,19 @@ module.exports.run = async(bot, message, args) =>{
         list = [];
         for(person of Object.keys(duellist))
         {
-          if((vlkys[person].set1[0] && vlkys[person].set1[1])) list.push(person)
+          if (!vlkys[person]){
+              vlkys[person] = {
+                vlkys: { B0: 1 },
+                status: { lv: 1, exp: 0 },
+                rank: { B0: "B" },
+                set1: [0, 0],
+                set2: [0, 0],
+                set3: [0, 0],
+                favor: { B0: 0 },
+                marry: { B0: 0 }
+              };
+          }
+          if((vlkys[person].set1[0] && vlkys[person].set1[1]) && message.guild.members.get(person)) list.push(person)
         }
         list.sort(function(a,b){ return duellist[b].elo -  duellist[a].elo})
         let index = list.findIndex(x => x == id)
@@ -91,6 +103,7 @@ module.exports.run = async(bot, message, args) =>{
         duelcount[id].match.now = 1
         fs.writeFileSync("./duellist.json",JSON.stringify(duellist));
         fs.writeFileSync("./duelcount.json",JSON.stringify(duelcount));
+        fs.writeFileSync("./vlkys.json", JSON.stringify(vlkys));
         return message.channel.send(show_pvp(duelcount[id].match.list));
       }
       else
@@ -1052,7 +1065,7 @@ module.exports.run = async(bot, message, args) =>{
       embed.addField(dis_player(p1)+show_rank(p1)+show_status(p1), Math.ceil(show_hp(p1))+"/"+Math.ceil(p1.maxhp)+" "+ show_heart(p1) + "\n"+Math.floor(show_sp(p1))+"/"+Math.floor(op2.maxsp) +" "+ show_star(p1),true)
            .addField(dis_player(p2)+show_rank(p2)+show_status(p2), Math.ceil(show_hp(p2))+"/"+Math.ceil(p2.maxhp)+" "+ show_heart(p2) +"\n"+Math.floor(show_sp(p2))+"/"+Math.floor(op2.maxsp)+" "+ show_star(p2),true)
            .addField(dis_player(op1)+show_rank(op1)+show_status(op1), Math.ceil(show_hp(op1))+"/"+Math.ceil(op1.maxhp)+" "+ show_heart(op1) +"\n"+Math.floor(show_sp(op1))+"/"+Math.floor(op2.maxsp)+" "+ show_star(op1))
-           .addField(dis_player(op2)+show_rank(op2)+show_status(op2), Math.ceil(show_hp(op2))+"/"+Math.ceil(op2.maxhp)+" "+ show_heart(op2) +"\n"+Math.floor(show_sp(op2))+"/"+Math.floor(op2.maxsp)+" "+ show_star(op2))
+           .addField(dis_player(op2)+show_rank(op2)+show_status(op2), Math.ceil(show_hp(op2))+"/"+Math.ceil(op2.maxhp)+" "+ show_heart(op2) +"\n"+Math.floor(show_sp(op2))+"/"+Math.floor(op2.maxsp)+" "+ show_star(op2),true)
       embed.setDescription(record)
       return embed;
     }
