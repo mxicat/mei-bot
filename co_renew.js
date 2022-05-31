@@ -378,7 +378,7 @@ module.exports.run = async(bot, message, args) =>{
          }
          else if(corp.enable && corp.now == 1)  //新創
          {
-           if((now.getTime() - corp.time > 2 * length_day && count(corp.newlist) >= 5) || count(corp.newlist) >= 20)
+           if((now.getTime() - corp.time > length_day && count(corp.newlist) >= 2) || count(corp.newlist) >= 20)
            {
              build(corp);
            }
@@ -387,7 +387,7 @@ module.exports.run = async(bot, message, args) =>{
       
       for(person of Object.keys(duelcount)) // 重置pve次數
       {
-        duelcount[person].pve = 3;
+        duelcount[person].pve = 20;
       }
       fs.writeFileSync("./duelcount.json",JSON.stringify(duelcount));
       

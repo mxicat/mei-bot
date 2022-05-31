@@ -28,8 +28,8 @@ module.exports.run = async(bot, message, args) => {
     //if(message.channel.id != "436575279402450967" && message.guild.members.get(id).roles.find(x => x.name == "GM") == null) return message.channel.send("維護中，需要**GM**權限");
     if((!message.channel.name.includes("新指令")) && message.channel.id != "453960579065970709" && message.channel.id != "436575279402450967") return message.reply("請至股票分類頻道使用。");
   
-    let ranking = message.guild.roles.find(role => role.name == "LV.20 女武神．強襲").position;
-    if(man.hoistRole.position < ranking) return message.reply("限制功能：水文等級20以上開放");
+    let ranking = message.guild.roles.find(role => role.name == "LV.10 女武神．戰車").position;
+    if(man.hoistRole.position < ranking) return message.reply("限制功能：水文等級10以上開放");
     if(man.roles.find(role => role.name == "bot") != null) return message.reply("機器人別鬧。");
 
     let now = new Date();
@@ -294,18 +294,18 @@ module.exports.run = async(bot, message, args) => {
             {
               coplayer[i] = {own:[], shares:{}, history:[]};
             }
-            for(i of Object.keys(stars))
+            /*for(i of Object.keys(stars))
             {
               stars[i].stars = 100;
-            }
-            for(i of Object.keys(coinlist))
+            }*/
+            /*for(i of Object.keys(coinlist))
             {
               items[i].items["006"] = coinlist[i].now - 1;
             }
             for(i of Object.keys(vlkys))
             {
               vlkys[i] = {vlkys : {"B0":1}, status: {"lv":1, "exp":0}, rank:{ "B0":"B" }, set1:[0,0], set2:[0,0], set3:[0,0], favor:{"B0":0}, marry:{"B0":0}}
-            }
+            }*/
             for(i of Object.keys(duellist))
             {
               duellist[i] = {now:0, win:0, lose:0, elo:1000, tower:1}            

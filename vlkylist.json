@@ -1,0 +1,182 @@
+{
+  "B0":
+  {
+     "name": "B0-休伯利安清潔工",
+     "atk": 5,
+     "cri": 0.5,
+     "hp": 30,
+     "def": 2,
+     "agi": 1,
+     "srank" : "B",
+    "img":"https://i.imgur.com/n5Tb387.jpg"
+  },
+  
+  "A0":
+  {
+     "name": "A0-琪亞娜·卡斯蘭娜",
+     "atk": 26.65,
+     "cri": 1.18,
+     "hp": 191.91,
+     "def": 4.59,
+     "agi": 9.6,
+     "srank" : "A",
+    "img":"https://i.imgur.com/cTGpRGx.png"
+  },
+  
+  "A1":
+  {
+     "name": "A1-雷電芽衣",
+     "atk": 26.03,
+     "cri": 1.06,
+     "hp": 200.84,
+     "def": 4.71,
+     "agi": 9.85,
+     "srank" : "A",
+    "img":"https://i.imgur.com/92IxAgg.png"
+  },
+  
+  
+  "A2":
+  {
+     "name": "A2-無量塔姬子",
+     "atk": 26.65,
+     "cri": 1.52,
+     "hp": 189.68,
+     "def": 4.34,
+     "agi": 9.00,
+     "srank" : "A",
+    "img":"https://i.imgur.com/wYnOkDO.png"
+  },
+  
+  "A3":
+  {
+     "name": "A3-德麗莎·阿波卡利斯",
+     "atk": 28.51,
+     "cri": 1.40,
+     "hp": 171.09,
+     "def": 4.46,
+     "agi": 9.20,
+     "srank" : "A",
+    "img":"https://i.imgur.com/VER8uve.png"
+  },
+  
+  "A4":
+  {
+     "name": "A4-八重櫻",
+     "atk": 29.75,
+     "cri": 1.00,
+     "hp": 168.1,
+     "def": 4.22,
+     "agi": 10.00,
+     "srank" : "A",
+    "img":"https://i.imgur.com/64hIAOg.png"
+  },
+  
+   "A5":
+  {
+     "name": "A5-卡蓮·卡斯蘭娜",
+     "atk": 25.54,
+     "cri": 1.15,
+     "hp": 210.5,
+     "def": 4.59,
+     "agi": 9.65,
+     "srank" : "A",
+    "img":"https://i.imgur.com/fOXLX1V.jpg"
+  },
+  
+  "A6":
+  {
+     "name": "A6-符華",
+     "atk": 29.13,
+     "cri": 1.04,
+     "hp": 159.93,
+     "def": 4.34,
+     "agi": 9.90,
+     "srank" : "A",
+    "img":"https://i.imgur.com/rrENots.jpg"
+  },
+  
+  "A7":
+  {
+     "name": "A7-麗塔·洛絲薇瑟",
+     "atk": 27.89,
+     "cri": 1.08,
+     "hp": 178.52,
+     "def": 4.79,
+     "agi": 9.80,
+     "srank" : "A",
+    "img":"https://i.imgur.com/YZQkBmT.png"
+  },
+  
+  "A8":
+  {
+     "name": "A8-莉莉婭·阿琳",
+     "atk": 22.97,
+     "cri": 1.37,
+     "hp": 227.28,
+     "def": 5.38,
+     "agi": 9.25,
+     "srank" : "A",
+    "img":"https://i.imgur.com/b2u4u49.png"
+  },
+  
+   "A9":
+  {
+     "name": "A9-希兒·芙樂艾",
+     "atk": 28.92,
+     "cri": 1.28,
+     "hp": 171.83,
+     "def": 4.59,
+     "agi": 9.40,
+     "srank" : "A",
+    "img":"https://i.imgur.com/7LZhVl4.jpg"
+  },
+  
+  "S0":
+  {
+     "name": "S0-西琳·空之律者",
+     "atk": 29.13,
+     "cri": 1.13,
+     "hp": 163.64,
+     "def": 4.46,
+     "agi": 9.70,
+     "srank" : "S",
+    "img":"https://i.imgur.com/GffpIrk.jpg"
+  },
+  
+  "bella" : 
+    {
+      "name": "BN-貝納勒斯",
+      "atk": 10.2,
+      "cri": 0.4,
+      "hp": 52.28,
+      "def": 1.56,
+      "agi": 1,
+      "srank" : "S",
+      "img":"https://i.imgur.com/3Q4aDpc.png"
+    },
+  
+  "S1":
+  {
+     "name": "S1-布洛妮婭·扎伊切克",
+     "atk": 25.41,
+     "cri": 1.11,
+     "hp": 211.26,
+     "def": 4.65,
+     "agi": 9.75,
+     "srank" : "S",
+    "img":"https://i.imgur.com/ocpmo2m.png"
+  },
+  
+  "S2":
+  {
+     "name": "S2-蘿莎莉婭·阿琳",
+     "atk": 25.91,
+     "cri": 1.31,
+     "hp": 200.84,
+     "def": 4.83,
+     "agi": 9.35,
+     "srank" : "S",
+    "img":"https://i.imgur.com/NCg1BdM.png"
+  }
+}
