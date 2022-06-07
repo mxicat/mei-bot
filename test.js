@@ -34,12 +34,8 @@ module.exports.run = async (bot, message, args) => {
   let role = message.guild.roles.find(x => x.name == "GM");
 
   
-  let price = require('crypto-price')
-price.getCryptoPrice('USD', 'DOGE').then(obj => { // Base for ex - USD, Crypto for ex - ETH 
-    console.log(obj.price)
-}).catch(err => {
-    console.log(err)
-});
+  coinlist["738357657022234664"].now = 1
+  fs.writeFileSync("./coinlist.json", JSON.stringify(coinlist));
   
   /*for(i of Object.keys(duellist))
   {

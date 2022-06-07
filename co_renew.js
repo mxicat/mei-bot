@@ -98,8 +98,8 @@ module.exports.run = async(bot, message, args) =>{
             string += (message.guild.members.get(person).displayName.slice(0,5).toLowerCase());
             for(i = 0; i < (9 - message.guild.members.get(person).displayName.slice(0,5).len())/2 ; i++) string += "　" ;
             string +=  "　　" + corp.newlist[person];
+            string += "\n";
           }
-          string += "\n";
         }
        embed.addField("對象                  投資額",string)
        return channel.fetchMessage(banner[type]).then(msg => msg.edit(embed));
