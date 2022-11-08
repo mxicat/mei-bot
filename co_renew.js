@@ -312,7 +312,7 @@ module.exports.run = async(bot, message, args) =>{
             stars[rank_array[i]].stars += ranking * x
             
             
-            str += person.displayName +" 獲得結算星石： " + ranking * x + "\n";
+            if(person) str += person.displayName +" 獲得結算星石： " + ranking * x + "\n";
           }
           duellist[rank_array[i]].win = 0
           duellist[rank_array[i]].lose = 0
@@ -512,7 +512,8 @@ module.exports.run = async(bot, message, args) =>{
         if(string != "") 
         {
           man = message.guild.members.get(person);
-          embed.setColor("#53e119").setTitle(man.displayName)
+          if(man)embed.setColor("#53e119").setTitle(man.displayName)
+          else embed.setColor("#53e119").setTitle("查無此人")
           embed.addField("交易紀錄",string)
           man.send(embed);
           fs.writeFileSync("./coplayer.json",JSON.stringify(coplayer));
