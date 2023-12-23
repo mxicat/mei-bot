@@ -34,8 +34,8 @@ module.exports.run = async (bot, message, args) => {
   let role = message.guild.roles.find(x => x.name == "GM");
 
   
-  coinlist["738357657022234664"].now = 1
-  fs.writeFileSync("./coinlist.json", JSON.stringify(coinlist));
+  //duellist["408229349095899136"].tower = 634
+  fs.writeFileSync("./coinlist.json", JSON.stringify(duellist));
   
   /*for(i of Object.keys(duellist))
   {
