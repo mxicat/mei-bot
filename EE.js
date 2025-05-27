@@ -18,7 +18,7 @@ const vlkylist = require("./vlkylist.json");
 const EElist = require("./EElist.json");
 
 module.exports.run = async(bot, message, args) =>{
-  
+  return;
   var id = message.author.id;
   if(EElist[id] == 1) return message.reply("彩蛋獎勵不能領兩次喔。");
   message.reply("恭喜你發現了彩蛋，獲得獎勵 333 星石。")
